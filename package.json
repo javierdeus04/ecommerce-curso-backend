@@ -1,0 +1,16 @@
+{
+  "name": "proyecto-ecommerce",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "author": "Javier Deus",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.1"
+  }
+}
