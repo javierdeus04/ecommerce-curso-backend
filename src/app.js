@@ -1,18 +1,47 @@
-const express = require('express');
-const path = require('path')
+import express from 'express';
+import handlebars from 'express-handlebars';
+import path from 'path';
 
-const productsRouter = require('./routers/products.router');
-const cartsRouter = require('./routers/carts.router');
+import { __dirname } from './utils.js';
+import indexRouter from './routers/index.router.js'
+import { ProductManager } from './products.app.js';
+
 
 const app = express();
-const PORT = 8080;
+const productManager = new ProductManager();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, '../public')))
 
-app.use('/api', productsRouter, cartsRouter);
+app.engine('handlebars', handlebars.engine());
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'handlebars');
 
-app.listen(PORT, () => {
-    console.log(`Server running in http://localhost:${PORT}`);
+//app.use('/', indexRouter);
+app.get('/', async (req, res) => {
+    try {
+        const products = await productManager.getProducts();
+        res.status(200).render('home', { products });
+    } catch (error) {
+        console.error('Error al obtener los productos:', error);
+        res.status(500).json({ error: 'Error al obtener los productos' });
+    }
+});
+
+app.get('/realtimeproducts', (req, res) => {
+    res.render('realTimeProducts')
 })
+
+app.use((error, req, res, next) => {
+    const message = `Ha ocurrido un error desconocido: ${error.message}`;
+    console.log(message);
+    res.status(500).json({ message }) 
+})
+
+//const productsRouter = require('./routers/products.router');
+//const cartsRouter = require('./routers/carts.router');
+
+//app.use('/api', productsRouter, cartsRouter);
+
+export default app;
