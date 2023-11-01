@@ -20,13 +20,13 @@ export class ProductManager {
                 this.products = JSON.parse(listProducts)
                 this.lastId = Math.max(...this.products.map(product => product.id));
                 if (!silent) {
-                    console.log(this.products);
+                    return this.products;
                 }
                 return this.products;
             } else {
                 this.products = [];
                 if (!silent) {
-                    console.log(this.products);
+                    return this.products;
                 }
                 return this.products; 
             }
@@ -50,7 +50,7 @@ export class ProductManager {
                 category,
                 description,
                 price,
-                thumbnail,
+                thumbnail: "",
                 code,
                 status,
                 stock,

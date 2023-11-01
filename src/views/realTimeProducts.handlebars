@@ -1,18 +1,28 @@
 <div>
-    <h1>Lista de Productos en tiempo real</h1>   
+    <h3>Buscar producto</h3>
+    <form id="form-search">
+        <div class="grid">
+            <input type="text" id="search-input" name="search" placeholder="Ingrese ID" required>
+            <button id="search-button" type="submit">Buscar</button>
+        </div>
+    </form>
+
+    <h1>Lista de Productos en tiempo real</h1>
     <ul id="list-products">
     </ul>
 
     <h2>Agregar nuevo producto</h2>
-     <form id="form-newproduct">
-        <input id="title-input" type="text" placeholder="Titulo" required>
-        <input id="category-input" type="text" placeholder="Categoria" required>
-        <input id="descrption-input" type="text" placeholder="Descripcion" required>
-        <input id="price-input" type="number" placeholder="Precio" required>
-        <input id="code-input" type="text" placeholder="Codigo" required>
-        <input id="stock-input" type="number" placeholder="Stock" required>
+    <form id="form-newproduct">
+        <input id="title-input" type="text" name="title" placeholder="Titulo" required>
+        <input id="category-input" type="text" name="category" placeholder="Categoria" required>
+        <input id="description-input" type="text" name="description" placeholder="Descripcion" required>
+        <input id="price-input" type="number" name="price" placeholder="Precio" required>
+        <input id="thumbnail-input" type="text" name="thumbail" placeholder="Thumbail">
+        <input id="code-input" type="text" name="code" placeholder="Codigo" required>
+        <input id="stock-input" type="number" name="stock" placeholder="Stock" required>
         <input type="submit" value="Agregar">
     </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="js/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script type="module" src="js/index.js"></script>

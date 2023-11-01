@@ -1,12 +1,24 @@
 [
     {
-        "id": "67053276-5453-4348-bcf4-c7476bd715cf",
-        "title": "2 Pan - 2 Lb, Foil",
-        "category": "Comida",
-        "description": "Lorem ipsum 2 sit amet, 2 adipiscing elit. Proin risus. Praesent lectus.",
-        "price": 124,
-        "code": "g5s",
+        "id": "abc19fd7-c70d-4910-b036-8b01780e5bd2",
+        "title": "Play Station 5",
+        "category": "Consoles",
+        "description": "Lorem Ipsum",
+        "price": 40000,
+        "thumbnail": "",
+        "code": "sd34cd3",
         "status": true,
-        "stock": 43530
+        "stock": 23
+    },
+    {
+        "id": "70b5cd30-d3a2-4d96-835c-1e6cc1326549",
+        "title": "DHDFHG",
+        "category": "DSFHDSH",
+        "description": "DSFHGS",
+        "price": "34",
+        "thumbnail": "",
+        "code": "ADG43DFS",
+        "status": true,
+        "stock": "32"
     }
 ]
