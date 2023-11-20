@@ -1,5 +1,5 @@
-const { Router } = require('express');
-const productManager = require('../products.app');
+/* const { Router } = require('express');
+const productManager = require('../../products.app.js');
 
 const router = Router();
 const products = new productManager();
@@ -67,4 +67,4 @@ router.delete('/products/:id', async (req, res) => {
 
 
 module.exports = router;
-
+ */

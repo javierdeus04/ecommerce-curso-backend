@@ -1,9 +1,10 @@
 import { Server } from 'socket.io';
 import { ProductManager } from './products.app.js';
+import MessageSchema from './dao/models/message.model.js';
 
 const productManager = new ProductManager();
 
-export const init = async (httpServer) => {
+export const initSocket = async (httpServer) => {
     const socketServer = new Server(httpServer);
 
     try {
@@ -11,6 +12,20 @@ export const init = async (httpServer) => {
 
         socketServer.on('connection', (socketClient) => {
             console.log(`Nuevo cliente conectado: ${socketClient.id}`);
+
+            MessageSchema.find().then((messages) => {
+                socketClient.emit('messages', messages)
+            });
+
+            socketClient.on('new-message', (newMessage) => {
+                const message = new MessageSchema(newMessage);
+                message.save().then(() => {
+                    socketServer.emit('new-message', newMessage);
+                    MessageSchema.find().then((messages) => {
+                        socketServer.emit('messages', messages)
+                    });
+                });
+            });
 
             socketClient.emit('productsList', { productsList });
 
