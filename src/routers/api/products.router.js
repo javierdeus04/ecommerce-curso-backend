@@ -1,12 +1,28 @@
 import { Router } from 'express';
 
 import ProductsManager from '../../dao/Products.manager.js';
+import ProductModel from '../../dao/models/product.model.js'
+import { buildResponsePaginated } from '../../utils.js'
+
 
 const router = Router();
 
 router.get('/products', async (req, res) => {
-    const products = await ProductsManager.get();
-    res.status(200).json(products);
+    const { limit = 10, page = 1, sort, category, status } = req.query;
+    const criteria = {};
+    const options = { limit, page };
+    if (sort) {
+        options.sort = { price: sort };
+    }
+    if (category) {
+        criteria.category = category;
+    }
+
+    if (status) {
+        criteria.status = status
+    }
+    const products = await ProductModel.paginate(criteria, options);
+    res.status(200).json(buildResponsePaginated({...products, sort, category, status}));
 });
 
 router.get('/products/:pid', async (req, res) => {

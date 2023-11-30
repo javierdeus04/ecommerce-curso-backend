@@ -1,0 +1,25 @@
+<h1>Carrito</h1>
+<article>
+    <table>
+        <tr>
+            <th>Titulo</th>
+            <th>Precio</th>
+            <th>Codigo</th>
+        </tr>
+        <tbody>
+            {{#each cartObject.products}}
+            <tr>
+                <td>{{this.product.title}}</td>
+                <td>{{this.product.price}}</td>
+                <td>{{this.product.code}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+        <tr>
+            <td>Total</td>
+            <td>{{total}}</td>
+        </tr>
+        
+    </table>
+    <button>Finalizar compra</button>
+</article>

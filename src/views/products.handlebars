@@ -1,32 +1,103 @@
+<ul >
+  <li style="display: inline-block"><button id="home-button"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor"
+    class="bi bi-house-door" viewBox="0 0 16 16">
+    <path
+      d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
+  </svg></button></li>
+  <li style="display: inline-block; float: right"><button id="cart-button"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+</svg></button></li>
+  </ul>
+
 <h1>Productos</h1>
+
 <article>
+    <aside>
+        <nav>
+
+            <ul>
+                <li>Busqueda por categoria:</li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Action">Accion</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Animation">Animacion</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Adventure">Aventura</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Comedy">Comedia</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Crime">Crimen</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Documentary">Documental</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Drama">Drama</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Children">Niños</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Romance">Romance</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Horror">Terror</a></li>
+                <li style="display: inline-block"><a
+                        href="{{baseUrl}}/products?limit=10&page={{page}}&search=Thriller">Thriller</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <span>Nota: El boton de "Agregar producto" apareceria solo siendo superuser</span>
     <button id="add-button">Agregar producto</button>
     <table>
         <tr>
             <th>Titulo</th>
             <th>Categoria</th>
-            <th>Descripcion</th>
-            <th>Precio</th>
+            <th>Precio<br>
+                <a href="{{baseUrl}}/products?limit=10&page={{page}}&search={{search}}&sort=asc">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor"
+                        class="bi bi-arrow-down" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1" />
+                    </svg>
+                </a>
+                <a href="{{baseUrl}}/products?limit=10&page={{page}}&search={{search}}&sort=desc">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor"
+                        class="bi bi-arrow-up" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5" />
+                    </svg>
+                </a>
+            </th>
             <th>Codigo</th>
             <th>Stock</th>
         </tr>
-        {{#each products}}
-        <tr>
-            <td>{{this.title}}</td>
-            <td>{{this.category}}</td>
-            <td>{{this.description}}</td>
-            <td>{{this.price}}</td>
-            <td>{{this.code}}</td>
-            <td>{{this.stock}}</td>
-            <td><button class="detail-button" data-pid="{{this._id}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-eye-fill" viewBox="0 0 16 16">
-                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                        <path
-                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-                    </svg></button></td>
-        </tr>
-        {{/each}}
+        <tbody>
+            {{#each payload}}
+            <tr>
+                <td>{{this.title}}</td>
+                <td>{{this.category}}</td>
+                <td>{{this.price}}</td>
+                <td>{{this.code}}</td>
+                <td>{{this.stock}}</td>
+                <td><button class="detail-button" data-pid="{{this._id}}"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                            <path
+                                d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                        </svg></button></td>
+                <td><button class="add-to-cart-button" data-pid="{{this._id}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-cart" viewBox="0 0 16 16">
+                            <path
+                                d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                        </svg></button></td>
+            </tr>
+            {{/each}}
+        </tbody>
     </table>
+
+
+    <a href="{{prevLink}}" role="button" {{#unless hasPrevPage}}disabled{{/unless}}>Anterior</a>
+    <p role="button" disabled>Pagina actual: {{page}}</p>
+    <a href="{{nextLink}}" role="button" {{#unless hasNextPage}}disabled{{/unless}}>Siguiente</a>
+
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script type="module" src="js/products.public.js"></script>
