@@ -1,7 +1,7 @@
 const cartButton = document.getElementById('cart-button');
 
 cartButton.addEventListener('click', () => {
-  const cid = '6567e2911bbfcf4b9bd8694f';
+  const cid = '6568dcaae14f72845e268026';
   window.location.href = `/carts/${cid}`;
 })
 
@@ -9,7 +9,7 @@ const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
 
 addToCartButtons.forEach((button) => {
   button.addEventListener('click', async () => {
-    const cid = '6567e2911bbfcf4b9bd8694f';
+    const cid = '6568dcaae14f72845e268026';
     const pid = button.dataset.pid;
 
     try {
