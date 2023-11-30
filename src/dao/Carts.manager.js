@@ -37,10 +37,10 @@ export default class CartsManager {
         }
     }
 
-    static async deleteProductFromCart(cid, product) {
+    static async deleteOneProductFromCart(cid, pid) {
         return CartModel.findByIdAndUpdate(
             cid,
-            { $pull: { products: product } },
+            { $pull: { products: { product: pid } } },
             { new: true }
         );
     };
