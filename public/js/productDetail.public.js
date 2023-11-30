@@ -1,7 +1,7 @@
 const addToCartButton = document.getElementById('add-to-cart-button');
 
 addToCartButton.addEventListener('click', async () => {
-    const cid = '6567e2911bbfcf4b9bd8694f';
+    const cid = '6568dcaae14f72845e268026';
     const pid = addToCartButton.dataset.pid;
 
     try {
