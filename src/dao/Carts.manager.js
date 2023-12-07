@@ -20,43 +20,43 @@ export default class CartsManager {
 
     static async addProductToCart(cid, pid) {
         try {
-            const existingCart = await CartModel.findById(cid).populate('products.product');
+            const existingCart = await CartModel.findById(cid);
 
             if (!existingCart) {
                 const newCartData = { products: [{ product: pid }] };
                 return CartModel.create(newCartData);
             }
-            const updatedCart = await CartModel.findOneAndUpdate(
-                { _id: cid },
-                { $push: { products: { product: pid } } },
-                { new: true }
-            ).populate('products.product');
-            return updatedCart;
+            const existingProduct = existingCart.products.find(
+                (item) => item.product._id.toString() === pid.toString()
+            );
+            if (existingProduct) {
+                existingProduct.quantity = (existingProduct.quantity || 1) + 1;
+            } else {
+                existingCart.products.push({ product: pid, quantity: 1 });
+            }
+            const updatedCart = await existingCart.save();
+
+            return updatedCart.populate('products.product');
         } catch (error) {
             throw new Error('Error al agregar producto al carrito: ' + error.message);
         }
     }
 
-    static async deleteProductFromCart(cid, product) {
+    static async deleteOneProductFromCart(cid, pid) {
         return CartModel.findByIdAndUpdate(
             cid,
-            { $pull: { products: product } },
+            { $pull: { products: { product: pid } } },
             { new: true }
         );
     };
 
     static async updateOneProductQuantity(cid, productId, quantity) {
         try {
-            const filter = { _id: cid, "products.productId": productId };
+            const filter = { _id: cid, "products.product": productId };
             const update = { $set: { "products.$.quantity": quantity } };
             const options = { new: true };
-
-            const updatedCart = await CartModel.findOneAndUpdate(filter, update, options);
-
-            if (!updatedCart) {
-                throw new Error('Carrito o producto no encontrado');
-            }
-
+            await CartModel.findOneAndUpdate(filter, update, options);
+            const updatedCart = await CartModel.findById(cid).populate('products.product');;
             return updatedCart;
         } catch (error) {
             throw new Error('Error al actualizar la cantidad del producto en el carrito: ' + error.message);

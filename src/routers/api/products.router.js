@@ -8,7 +8,7 @@ import { buildResponsePaginated } from '../../utils.js'
 const router = Router();
 
 router.get('/products', async (req, res) => {
-    const { limit = 10, page = 1, sort, category, status } = req.query;
+    const { limit = 10, page = 1, sort, category, stock } = req.query;
     const criteria = {};
     const options = { limit, page };
     if (sort) {
@@ -18,11 +18,20 @@ router.get('/products', async (req, res) => {
         criteria.category = category;
     }
 
-    if (status) {
-        criteria.status = status
+    if (stock !== undefined) {
+        criteria.stock = stock === 'true' ? { $ne: 0 } : undefined;
     }
-    const products = await ProductModel.paginate(criteria, options);
-    res.status(200).json(buildResponsePaginated({...products, sort, category, status}));
+    try {
+        const products = await ProductModel.paginate(criteria, options);
+        
+        if (page > products.totalPages) {
+            throw new Error(`La página solicitada: ${page} no existe.`);
+        }
+        res.status(200).json(buildResponsePaginated({...products, sort, category, stock}));
+    } catch (error) {
+        console.error(error.message);
+        res.status(400).send({ error: error.message });
+    }
 });
 
 router.get('/products/:pid', async (req, res) => {

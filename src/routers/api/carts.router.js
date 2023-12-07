@@ -15,7 +15,7 @@ router.post('/carts', async (req, res) => {
 router.get('/carts/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
-        const cart = await CartsManager.getById(cid).populate('products.product');
+        const cart = await CartsManager.getById(cid);
         if (!cart) {
             res.json({ error: 'Carrito no encontrado' })
         } else {
@@ -39,22 +39,10 @@ router.post('/carts/:cid/product/:pid', async (req, res) => {
 router.delete('/carts/:cid/product/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
-
         const newUpdatedCart = await CartsManager.deleteOneProductFromCart(cid, pid)
         res.status(200).json(newUpdatedCart)
-        console.log(newUpdatedCart);
     } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-});
-
-router.put('/carts/:cid/product/:pid', async (req, res) => {
-    try {
-        const { cid, pid } = req.params;
-        const { quantity } = req.body;
-        const updatedQuantityProduct = await CartsManager.updateProductQuantity(cid, pid, quantity);
-        res.status(200).json(updatedQuantityProduct);
-    } catch (error) {
+        console.error(error.message);
         res.status(500).send({ error: error.message });
     }
 });
@@ -76,6 +64,20 @@ router.delete('/carts/:cid', async (req, res) => {
         const emptyCart = await CartsManager.deleteAllProductsFromCart(cid)
         console.log(emptyCart);
         res.status(200).json(emptyCart);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+})
+
+router.put('/carts/:cid/product/:pid', async (req, res) => {
+    try {
+        const { cid, pid } = req.params;
+        const cart = await CartsManager.getById(cid);
+        const quantity = cart.products.find(item => item.product._id.toString() === pid.toString()).quantity;
+        const decreaseQuantity = quantity - 1;
+        await CartsManager.updateOneProductQuantity(cid, pid, decreaseQuantity);
+        const updatedCart = CartsManager.getById(cid);
+        res.status(200).json(updatedCart);
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
