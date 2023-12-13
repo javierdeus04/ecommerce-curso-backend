@@ -44,4 +44,11 @@ router.post('/sessions/recovery-password', async (req, res) => {
     res.redirect('/login')
 });
 
+router.get('/sessions/github', passport.authenticate('github', { scope: ['user:email']}));
+
+router.get('/sessions/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
+    console.log(req.user);
+    res.redirect('/products');
+})
+
 export default router;
