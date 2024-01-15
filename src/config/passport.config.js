@@ -71,11 +71,12 @@ export const init = () => {
         ) {
             return done(new Error('Complete los campos requeridos'))
         }
-        let user = await UserModel.findOne({ email })
+        const result = await UserService.getAll({ email })
+        let user = result[0] 
         if (user) {
             return done(new Error(`El usuario ${email} ya existe`))
         }
-        user = await UserModel.create({
+        user = await UserService.create({
             first_name,
             last_name,
             email,
