@@ -1,8 +1,7 @@
 const cartButton = document.getElementById('cart-button');
 
 cartButton.addEventListener('click', () => {
-  const cid = '6568dcaae14f72845e268026';
-  window.location.href = `/carts/${cid}`;
+  window.location.href = `/carts/current`;
 })
 
 const logoutButton = document.getElementById('logout-button');
@@ -25,7 +24,6 @@ logoutButton.addEventListener('click', async () => {
   } catch (error) {
     console.error(error.message);
   }
-
 })
 
 

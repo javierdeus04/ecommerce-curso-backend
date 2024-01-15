@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-import ProductModel from "./product.model.js";
-
 const CartSchema = new mongoose.Schema({
     products: [{
         product: {

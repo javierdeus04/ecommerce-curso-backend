@@ -1,45 +1,40 @@
 import { Router } from 'express';
 
-import CartsManager from '../../dao/Carts.manager.js';
-import CartModel from '../../dao/models/cart.model.js';
+import CartsController from '../../controllers/carts.controller.js';
+import UserController from '../../controllers/users.controller.js';
+import passport from 'passport';
+import CartsService from '../../services/carts.service.js';
 
 const router = Router();
 
-router.post('/carts', async (req, res) => {
-    const { body } = req;
-    const cart = await CartsManager.create(body);
-    console.log(cart);
-    res.status(201).json(cart);
-});
-
-router.get('/carts/:cid', async (req, res) => {
+router.get('/carts/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-        const { cid } = req.params;
-        const cart = await CartsManager.getById(cid);
-        if (!cart) {
-            res.json({ error: 'Carrito no encontrado' })
-        } else {
-            res.status(200).json(cart)
-        }
+        const currentUser = await UserController.getById(req.user)
+        const userWithCart = await currentUser.populate('cart')
+        console.log(userWithCart);
+        res.status(200).json(userWithCart.cart);
     } catch (error) {
-        res.status(500).send({ error: error.message });
+        console.error('Error al obtener el carrito:', error);
+        res.status(500).json({ message: 'Error al obtener el carrito' });
     }
 });
 
-router.post('/carts/:cid/product/:pid', async (req, res) => {
+router.post('/carts/current/:pid', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-        const { cid, pid } = req.params;
-        const updatedCart = await CartsManager.addProductToCart(cid, pid)
+        const { pid } = req.params;
+        const cid = req.user.cart._id;
+        const updatedCart = await CartsController.addProductToCart(cid, pid)
         res.status(200).json(updatedCart)
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
 });
 
-router.delete('/carts/:cid/product/:pid', async (req, res) => {
+router.delete('/carts/current/:pid', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-        const { cid, pid } = req.params;
-        const newUpdatedCart = await CartsManager.deleteOneProductFromCart(cid, pid)
+        const { pid } = req.params;
+        const cid = req.user.cart._id;
+        const newUpdatedCart = await CartsController.deleteProductById(cid, pid)
         res.status(200).json(newUpdatedCart)
     } catch (error) {
         console.error(error.message);
@@ -47,7 +42,7 @@ router.delete('/carts/:cid/product/:pid', async (req, res) => {
     }
 });
 
-router.put('/carts/:cid', async (req, res) => {
+/* router.put('/carts/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
         const { products } = req.body;
@@ -56,12 +51,13 @@ router.put('/carts/:cid', async (req, res) => {
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
-})
+}) */
 
-router.delete('/carts/:cid', async (req, res) => {
+router.delete('/carts/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-        const { cid } = req.params;
-        const emptyCart = await CartsManager.deleteAllProductsFromCart(cid)
+        const cid = req.user.cart._id.toString();
+        console.log(cid);
+        const emptyCart = await CartsController.deleteAllProductsFromCart(cid)
         console.log(emptyCart);
         res.status(200).json(emptyCart);
     } catch (error) {
@@ -69,14 +65,14 @@ router.delete('/carts/:cid', async (req, res) => {
     }
 })
 
-router.put('/carts/:cid/product/:pid', async (req, res) => {
+router.put('/carts/current/product/:pid', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-        const { cid, pid } = req.params;
-        const cart = await CartsManager.getById(cid);
+        const { pid } = req.params;
+        const cid = req.user.cart._id; 
+        const cart = await CartsService.getById(cid);
         const quantity = cart.products.find(item => item.product._id.toString() === pid.toString()).quantity;
         const decreaseQuantity = quantity - 1;
-        await CartsManager.updateOneProductQuantity(cid, pid, decreaseQuantity);
-        const updatedCart = CartsManager.getById(cid);
+        const updatedCart = await CartsService.updateOneProductQuantity(cid, pid, decreaseQuantity);
         res.status(200).json(updatedCart);
     } catch (error) {
         res.status(500).send({ error: error.message });

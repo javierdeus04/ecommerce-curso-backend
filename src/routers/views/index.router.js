@@ -2,10 +2,7 @@ import { Router } from 'express';
 
 import { buildResponsePaginated } from '../../utils.js'
 import ProductModel from '../../dao/models/product.model.js'
-import ProductsManager from '../../dao/Products.manager.js';
-import CartsManager from '../../dao/Carts.manager.js';
-import UserModel from '../../dao/models/user.model.js';
-
+//import CartsManager from '../../dao/Carts.manager.js';
 const router = Router();
 
 router.get('/products', async (req, res) => {
@@ -56,7 +53,7 @@ router.get('/chat', (req, res) => {
 router.get('/carts/:cid', async (req, res) => {
     const { cid } = req.params;
     try {
-        const cart = await CartsManager.getById(cid);
+        //const cart = await CartsManager.getById(cid);
         const cartObject = cart.toObject();
         cartObject.products.forEach(product => {
             product.subtotal = product.product.price * product.quantity;
