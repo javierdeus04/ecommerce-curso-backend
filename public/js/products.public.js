@@ -1,7 +1,12 @@
 const cartButton = document.getElementById('cart-button');
 
 cartButton.addEventListener('click', () => {
+<<<<<<< HEAD
   window.location.href = `/carts/current`;
+=======
+  const cid = '6568dcaae14f72845e268026';
+  window.location.href = `/carts/${cid}`;
+>>>>>>> 806be6608fe5d4930a6fbdc75e54893f08092f2e
 })
 
 const logoutButton = document.getElementById('logout-button');
