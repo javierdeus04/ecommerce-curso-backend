@@ -1,7 +1,7 @@
 import ProductModel from "./models/product.model.js";
 
 export default class ProductDaoMongoDB {
-    static getAll(criteria = {}) {
+    static getAll(criteria = {}, opts = { sort: { price: -1 }, page: 1, limit: 10 }) {
         return ProductModel.find(criteria)
     }
 

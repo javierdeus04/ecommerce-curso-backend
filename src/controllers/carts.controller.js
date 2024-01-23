@@ -12,7 +12,7 @@ export default class CartsController {
     
     static async getById(id) {
         try {
-            const cart = await CartsService.getByIdById(id).populate('products.product');
+            const cart = await CartsService.getById(id).populate('products.product');
             if (!cart) {
                 throw new Error('Carrito no encontrado');
             }
@@ -78,4 +78,12 @@ export default class CartsController {
         }
         return CartsService.updateById(id, { products: [] });
     }
+
+    static async purchase(id) {
+        const productStock = await CartsService.getById(id) 
+    }
+
+
 }
+
+    

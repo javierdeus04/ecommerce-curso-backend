@@ -79,5 +79,13 @@ router.put('/carts/current/product/:pid', passport.authenticate('jwt', { session
     }
 })
 
+router.get('/carts/current/purchase', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+       
+    } catch (error) {
+
+    }
+})
+
 
 export default router;

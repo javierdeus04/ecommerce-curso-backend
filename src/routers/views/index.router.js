@@ -1,12 +1,18 @@
 import { Router } from 'express';
+import path from 'path';
 
 import { buildResponsePaginated } from '../../utils.js'
 import ProductModel from '../../dao/models/product.model.js'
+import ProductsController from '../../controllers/products.controller.js';
 //import CartsManager from '../../dao/Carts.manager.js';
+import EmailService from '../../services/email.service.js';
+import { __dirname } from '../../utils.js';
+import TwilioService from '../../services/twilio.service.js';
+
+
 const router = Router();
 
 router.get('/products', async (req, res) => {
-    const cid  = '6568dcaae14f72845e268026';
     const { limit = 10, page = 1, sort, search, stock } = req.query;
     const criteria = {};
     const options = { limit, page };
@@ -87,6 +93,32 @@ router.get('/register', (req, res) => {
 router.get('/recovery-password', (req, res) => {
     res.render('recovery-password', { title: 'Recuperacion de contraseña' });
 
+})
+
+router.get('/mail', async (req, res) => {
+    const emailService = EmailService.getInstance();
+    const result = await emailService.sendEmail(
+        'javidiuf@hotmail.com',
+        'Mail desde el servidor',
+        `<div> 
+            <h1>Hola</h1> 
+            <img src="cid:tori" alt="Hello">
+        </div>`,
+        [
+            {
+                filename: 'tori.jpg',
+                path: path.join( __dirname, './images/tori.jpg'),
+                cid: 'tori'
+            }
+        ]
+    ) 
+    res.status(200).json(result);
+})
+
+router.get('/send-otp', async (req, res) => {
+    const twilioService = TwilioService.getInstance();
+    const response = await twilioService.sendSMS('+59899909068', `Su codigo de verificacion es hola`) 
+    res.status(200).json(response);
 })
 
 export default router;

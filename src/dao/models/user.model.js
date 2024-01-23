@@ -12,7 +12,13 @@ const UserSchema = new mongoose.Schema({
     cart: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',
+    },
+    orders: { type: [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order',
     }
+], required: false, default: []},
 }, { timestamps: true });
 
 UserSchema.plugin(mongoosePaginate);

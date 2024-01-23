@@ -4,6 +4,8 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import JWT from 'jsonwebtoken'
 
+import config from './config/config.js';
+
 export const JWT_SECRET = 'u^f.Tl6o78a5bkGXF8~y!KTe2l1:XEcE'
 
 export const generateToken = (user) => {
@@ -30,8 +32,8 @@ export const verifyToken = (token) => {
 }
 
 export const isAdmin = (req, res, next) => {
-    const role = req.user.role
-    if (role === 'admin') {
+    const user = req.user;
+    if (user && user.email === config.adminEmail && user.password === config.adminPassword) {
         return next();
     } else {
         return res.status(403).json({ message: 'Acceso no autorizado' });
@@ -71,6 +73,12 @@ export const buildResponsePaginated = (data, baseUrl = URL_BASE) => {
         prevLink: data.hasPrevPage ? `${baseUrl}/products?limit=${data.limit}&page=${data.prevPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null,
         nextLink: data.hasNextPage ? `${baseUrl}/products?limit=${data.limit}&page=${data.nextPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null
     }
+}
+
+export const admin = {
+    email: 'adminCoder@coder.com',
+    password: 'adminCod3r123',
+    role: 'admin'
 }
 
 

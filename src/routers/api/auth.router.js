@@ -2,8 +2,6 @@ import { Router } from 'express';
 import UserModel from '../../dao/models/user.model.js';
 import { createHash, isValidPassword, generateToken, verifyToken } from '../../utils.js';
 import passport from 'passport';
-import { isAdmin } from '../../utils.js';
-
 
 const router = Router();
 
@@ -13,7 +11,7 @@ router.post('/auth/register', passport.authenticate('register', { session: false
 
 router.post('/auth/login', passport.authenticate('login', { session: false, failureRedirect: '/login' }), async (req, res) => {
     const { user, token, role } = req.user;
-    res.cookie('access_token', token, { maxAge: 1000 * 60 * 30, httpOnly: true, signed: true });
+    res.cookie('access_token', token, { maxAge: 1000 * 60 * 60, httpOnly: true, signed: true });
     res.status(200).json({ message: 'Sesion iniciada con exito' });
 });
 

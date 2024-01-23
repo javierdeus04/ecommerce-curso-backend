@@ -4,7 +4,7 @@ export default class UserController {
     static getAll(filter = {}) {
         return UsersService.getAll(filter);
     }
-    
+
     static async create(data) {
         const {
             first_name,
@@ -33,7 +33,10 @@ export default class UserController {
     }
 
     static async updateById(id, data) {
-        await UserController.getById(id)
+        const existingUser = await UserController.getById(id);
+        if (!existingUser) {
+            throw new Error('Usuario no encontrado');
+        }
         return UsersService.updateById(id, data);
     }
 
