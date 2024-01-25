@@ -3,6 +3,7 @@ import OrdersService from "../services/orders.service.js";
 import UsersService from "../services/users.service.js";
 import { v4 as uuidv4 } from 'uuid';
 import CartsController from "./carts.controller.js";
+import ProductsService from "../services/products.service.js";
 
 export default class OrdersController {
     static getAll(filter = {}, opts = {}) {
@@ -17,12 +18,35 @@ export default class OrdersController {
         const userResult = await UsersService.getById(user);
         const userId = user._id.toString();
     
-        await userResult.populate('cart');
-        const orderedProducts = userResult.cart.products;
+        const currentUserWithCart = await userResult.populate('cart');
+
+        const currentCart = currentUserWithCart.cart;
+
+        const itemsInCart = await currentCart.populate('products.product');
+
+        const productsInCart = itemsInCart.products;
     
-        const orderResult = await CartsController.cartPurchase(userResult);
-        const productsToPurchase = orderResult.productsToPurchase;
+        const allProducts = await ProductsService.getAll();
+        const stockProducts = allProducts.filter(p => p.stock !== 0);
     
+        const productsToPurchase = [];
+
+    
+        for (const cartProduct of productsInCart) {
+      
+            const productsWithStockInCart = stockProducts.find(stockProduct => stockProduct._id.toString() === cartProduct.product._id.toString());
+
+            if (productsWithStockInCart) {
+                const availableStock = productsWithStockInCart.stock;
+                const quantityInCart = cartProduct.quantity;
+    
+                if (availableStock >= quantityInCart) {
+                    productsToPurchase.push(cartProduct);
+                } 
+            } 
+        }
+    
+        
         let totalPrice = 0;
         productsToPurchase.forEach(item => {
                 const productTotalPrice = item.product.price * item.quantity;

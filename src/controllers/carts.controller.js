@@ -85,18 +85,17 @@ export default class CartsController {
     }
 
     static async cartPurchase(id) {
-        const currentUser = await UsersService.getById(id);
-        const cartId = currentUser.cart;
-        const currentCart = await CartsController.getById(cartId);
-        const orderId = currentUser.orders[0];
-    
+
+        const userResult = await UsersService.getById(id); 
+        const currentUserWithCart = await userResult.populate('cart');
+        const currentCart = currentUserWithCart.cart;
+        const currentCartId = currentCart._id;
         const itemsInCart = await currentCart.populate('products.product');
         const productsInCart = itemsInCart.products;
-    
+
         const allProducts = await ProductsService.getAll();
         const stockProducts = allProducts.filter(p => p.stock !== 0);
-    
-        const productsToPurchase = [];
+
         const refusedProducts = [];
     
         for (const cartProduct of productsInCart) {
@@ -109,8 +108,7 @@ export default class CartsController {
                 if (availableStock >= quantityInCart) {
                     productsWithStockInCart.stock -= quantityInCart;
                     await productsWithStockInCart.save();
-                    productsToPurchase.push(cartProduct);
-                } else {
+                }else {
                     refusedProducts.push(cartProduct.product)
                 }
             } else {
@@ -118,12 +116,9 @@ export default class CartsController {
             }
         }
 
-
-        await CartsService.updateById(cartId, { products: refusedProducts })
-        
-        await OrdersService.updateById(orderId, { status: 'completed' });
+        await CartsService.updateById(currentCartId, { products: refusedProducts })
     
-        return { productsToPurchase, refusedProducts };
+        return refusedProducts;
     }
     
 }

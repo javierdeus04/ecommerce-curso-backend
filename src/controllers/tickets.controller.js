@@ -17,15 +17,17 @@ export default class TicketsController {
         const code = uuidv4();
         const currentUser = await UsersService.getById(user);
 
-        const currentOrderId = currentUser.orders[0]
-        const currentOrder = await OrdersService.getById(currentOrderId)
+        const populateOrders = await currentUser.populate('orders');
+        const userOrders = populateOrders.orders;
+        const pendingOrder = userOrders.find(order => order.status === 'pending');
+        const pendingOrderId = pendingOrder._id;
 
-        const currentProducts = currentOrder.products;
+        const currentProducts = pendingOrder.products;
 
         if (!currentProducts || currentProducts.length === 0) {
             throw new Error('Productos no disponibles');
         } else {
-            const amount = currentOrder.total;
+            const amount = pendingOrder.total;
             const userEmail = user.email;
 
             const newTicket = {
@@ -34,7 +36,12 @@ export default class TicketsController {
                 purchaser: userEmail
             }
 
-            return TicketsService.create(newTicket);
+            await OrdersService.updateById(pendingOrderId, { status: 'completed' });
+            const updatedOrder = await OrdersService.getById(pendingOrderId)
+
+            const ticketCreated = await TicketsService.create(newTicket);
+
+            return { updatedOrder, ticketCreated }
         }
     }
 

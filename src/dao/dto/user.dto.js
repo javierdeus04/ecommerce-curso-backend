@@ -19,6 +19,7 @@ export const createUserDTO = (users) => {
             last_name: users.last_name,
             email: users.email,
             age: users.age,
+            cart: users.cart,
             orders: users.orders
         };
     }
