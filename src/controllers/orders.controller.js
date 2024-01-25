@@ -30,10 +30,8 @@ export default class OrdersController {
         const stockProducts = allProducts.filter(p => p.stock !== 0);
     
         const productsToPurchase = [];
-
     
         for (const cartProduct of productsInCart) {
-      
             const productsWithStockInCart = stockProducts.find(stockProduct => stockProduct._id.toString() === cartProduct.product._id.toString());
 
             if (productsWithStockInCart) {

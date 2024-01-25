@@ -82,9 +82,9 @@ router.get('/carts/current/purchase', passport.authenticate('jwt', { session: fa
     try {
         const { body, user } = req;
         const dataTicket = {body, user};
-        const orderResult = await CartsController.cartPurchase(user)
-        const ticket = await TicketsController.create(dataTicket)
-        res.status(200).json({orderResult, ticket})
+        const productsRejected = await CartsController.cartPurchase(user)
+        const finalizedPurchase = await TicketsController.create(dataTicket)
+        res.status(200).json({productsRejected, finalizedPurchase})
     } catch (error) {
         res.status(500).send({ error: error.message });
     }

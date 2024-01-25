@@ -109,16 +109,22 @@ export default class CartsController {
                     productsWithStockInCart.stock -= quantityInCart;
                     await productsWithStockInCart.save();
                 }else {
-                    refusedProducts.push(cartProduct.product)
+                    refusedProducts.push({
+                        product: cartProduct.product._id,
+                        quantity: 1,
+                    })
                 }
             } else {
-                refusedProducts.push(cartProduct.product)
+                refusedProducts.push({
+                    product: cartProduct.product._id,
+                    quantity: 1,
+                })
             }
         }
 
         await CartsService.updateById(currentCartId, { products: refusedProducts })
     
-        return refusedProducts;
+        return refusedProducts
     }
     
 }
