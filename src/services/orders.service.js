@@ -1,8 +1,9 @@
 import OrderDao from "../dao/order.dao.js";
 
 export default class OrdersService {
-    static getAll(filter = {}) {
-        return OrderDao.getAll(filter)
+    static getAll(filter = {}, opts = {}) {
+        const options = { ...opts, sort: opts.sort || { createdAt: 1 } };
+        return OrderDao.getAll(filter).sort(options.sort).exec();
     }
 
     static create(data) {

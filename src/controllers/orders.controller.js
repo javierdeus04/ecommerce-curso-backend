@@ -2,55 +2,45 @@ import CartsService from "../services/carts.service.js";
 import OrdersService from "../services/orders.service.js";
 import UsersService from "../services/users.service.js";
 import { v4 as uuidv4 } from 'uuid';
+import CartsController from "./carts.controller.js";
 
 export default class OrdersController {
     static getAll(filter = {}, opts = {}) {
+        opts.sort = { createdAt: -1 };
         return OrdersService.getAll(filter, opts);
     }
 
     static async create(data) {
-        const {
-            user,
-        } = data;
-
+        const { user } = data;
+    
         const code = uuidv4();
         const userResult = await UsersService.getById(user);
         const userId = user._id.toString();
-        console.log(userId);
+    
         await userResult.populate('cart');
-        const cartId = userResult.cart._id;
         const orderedProducts = userResult.cart.products;
-        const productsInCart = await CartsService.getById(cartId);
-        await productsInCart.populate('products.product');
-
+    
+        const orderResult = await CartsController.cartPurchase(userResult);
+        const productsToPurchase = orderResult.productsToPurchase;
+    
         let totalPrice = 0;
-        orderedProducts.map(item => {
-            const product = productsInCart.products.find(cartProduct => cartProduct._id.toString() === item._id.toString());
-            if (product && product.product && product.product.price) {
-                const productTotalPrice = product.product.price * item.quantity;
+        productsToPurchase.forEach(item => {
+                const productTotalPrice = item.product.price * item.quantity;
                 totalPrice += productTotalPrice;
-                return {
-                    product: product.product._id,
-                    quantity: item.quantity,
-                    total: productTotalPrice,
-                };
-            }
-            return null;
-        }).filter(Boolean);
-
+        });
+    
         const newOrder = {
             code,
             user: userId,
-            products: orderedProducts,
+            products: productsToPurchase,
             total: totalPrice,
-        }
-        const createdOrder = await OrdersService.create(newOrder)
-
-        const { orders } = user;
+        };    
+        const createdOrder = await OrdersService.create(newOrder);
+    
+        const { orders } = userResult;
         orders.push(createdOrder);
         await UsersService.updateById(userId, { orders });
-        console.log(user);
-
+    
         return createdOrder;
     }
 
@@ -71,8 +61,17 @@ export default class OrdersController {
         return UsersService.updateById(id, data);
     }
 
+    static async deleteAllOrders(id) {
+        const user = await UsersService.getById(id);
+        if (!user) {
+            throw new Error('Usuario no encontrado');
+        }
+        return UsersService.updateById(id, { orders: [] });
+        
+    }
+
     static async deleteById(id) {
-        await UserController.getById(id)
+        await UserController.getById(id);
         return UsersService.deleteById(id);
     }
 }

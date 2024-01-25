@@ -4,6 +4,8 @@ import CartsController from '../../controllers/carts.controller.js';
 import UserController from '../../controllers/users.controller.js';
 import passport from 'passport';
 import CartsService from '../../services/carts.service.js';
+import OrdersService from '../../services/orders.service.js';
+import TicketsController from '../../controllers/tickets.controller.js';
 
 const router = Router();
 
@@ -11,7 +13,6 @@ router.get('/carts/current', passport.authenticate('jwt', { session: false }), a
     try {
         const currentUser = await UserController.getById(req.user)
         const userWithCart = await currentUser.populate('cart')
-        console.log(userWithCart);
         res.status(200).json(userWithCart.cart);
     } catch (error) {
         console.error('Error al obtener el carrito:', error);
@@ -56,9 +57,7 @@ router.delete('/carts/current/:pid', passport.authenticate('jwt', { session: fal
 router.delete('/carts/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         const cid = req.user.cart._id.toString();
-        console.log(cid);
         const emptyCart = await CartsController.deleteAllProductsFromCart(cid)
-        console.log(emptyCart);
         res.status(200).json(emptyCart);
     } catch (error) {
         res.status(500).send({ error: error.message });
@@ -81,9 +80,13 @@ router.put('/carts/current/product/:pid', passport.authenticate('jwt', { session
 
 router.get('/carts/current/purchase', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
-       
+        const { body, user } = req;
+        const dataTicket = {body, user};
+        const orderResult = await CartsController.cartPurchase(user)
+        const ticket = await TicketsController.create(dataTicket)
+        res.status(200).json({orderResult, ticket})
     } catch (error) {
-
+        res.status(500).send({ error: error.message });
     }
 })
 

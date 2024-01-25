@@ -1,4 +1,9 @@
 import CartsService from "../services/carts.service.js";
+import ProductsService from "../services/products.service.js"
+import UsersService from "../services/users.service.js";
+import UserController from "./users.controller.js";
+import OrdersController from "./orders.controller.js";
+import OrdersService from "../services/orders.service.js";
 
 export default class CartsController {
 
@@ -12,7 +17,7 @@ export default class CartsController {
     
     static async getById(id) {
         try {
-            const cart = await CartsService.getById(id).populate('products.product');
+            const cart = await CartsService.getById(id)
             if (!cart) {
                 throw new Error('Carrito no encontrado');
             }
@@ -79,11 +84,48 @@ export default class CartsController {
         return CartsService.updateById(id, { products: [] });
     }
 
-    static async purchase(id) {
-        const productStock = await CartsService.getById(id) 
+    static async cartPurchase(id) {
+        const currentUser = await UsersService.getById(id);
+        const cartId = currentUser.cart;
+        const currentCart = await CartsController.getById(cartId);
+        const orderId = currentUser.orders[0];
+    
+        const itemsInCart = await currentCart.populate('products.product');
+        const productsInCart = itemsInCart.products;
+    
+        const allProducts = await ProductsService.getAll();
+        const stockProducts = allProducts.filter(p => p.stock !== 0);
+    
+        const productsToPurchase = [];
+        const refusedProducts = [];
+    
+        for (const cartProduct of productsInCart) {
+            const productsWithStockInCart = stockProducts.find(stockProduct => stockProduct._id.toString() === cartProduct.product._id.toString());
+
+            if (productsWithStockInCart) {
+                const availableStock = productsWithStockInCart.stock;
+                const quantityInCart = cartProduct.quantity;
+    
+                if (availableStock >= quantityInCart) {
+                    productsWithStockInCart.stock -= quantityInCart;
+                    await productsWithStockInCart.save();
+                    productsToPurchase.push(cartProduct);
+                } else {
+                    refusedProducts.push(cartProduct.product)
+                }
+            } else {
+                refusedProducts.push(cartProduct.product)
+            }
+        }
+
+
+        await CartsService.updateById(cartId, { products: refusedProducts })
+        
+        await OrdersService.updateById(orderId, { status: 'completed' });
+    
+        return { productsToPurchase, refusedProducts };
     }
-
-
+    
 }
 
     
