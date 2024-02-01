@@ -3,8 +3,10 @@ import url from 'url';
 import multer from 'multer';
 import bcrypt from 'bcrypt';
 import JWT from 'jsonwebtoken'
+import { faker } from '@faker-js/faker';
+import passport from 'passport';
 
-import config from './config/config.js';
+import config from '../src/config/config.js';
 
 export const JWT_SECRET = 'u^f.Tl6o78a5bkGXF8~y!KTe2l1:XEcE'
 
@@ -32,11 +34,11 @@ export const verifyToken = (token) => {
 }
 
 export const isAdmin = (req, res, next) => {
-    const user = req.user;
-    if (user && user.email === config.adminEmail && user.password === config.adminPassword) {
+    if (req.isAuthenticated() && req.user.email === config.adminEmail && req.user.password === config.adminPassword) {
+        req.user.role = 'admin';
         return next();
     } else {
-        return res.status(403).json({ message: 'Acceso no autorizado' });
+        res.status(403).send('Forbidden');
     }
 };
 
@@ -79,6 +81,28 @@ export const admin = {
     email: 'adminCoder@coder.com',
     password: 'adminCod3r123',
     role: 'admin'
+}
+
+export const authenticateJWT = (req, res, next) => { passport.authenticate('jwt', { session: false }, (err, user, info) => {
+      if (user) {
+        req.user = user;
+      }
+      next();
+    })(req, res, next);
+  };
+
+export const generateProduct = () => {
+    return {
+        id: faker.database.mongodbObjectId(),
+        title: faker.commerce.productName(),
+        category: faker.commerce.department(),
+        description: faker.lorem.paragraph(),
+        price: faker.commerce.price(),
+        thumbnail: faker.image.url(),
+        code: faker.string.alphanumeric({ length: 10 }),
+        stock: faker.number.int({ min: 10, max: 999 }),
+        status: faker.datatype.boolean(),
+    }
 }
 
 

@@ -4,6 +4,7 @@ import UsersService from "../services/users.service.js";
 import UserController from "./users.controller.js";
 import OrdersController from "./orders.controller.js";
 import OrdersService from "../services/orders.service.js";
+import ProductsController from "./products.controller.js";
 
 export default class CartsController {
 

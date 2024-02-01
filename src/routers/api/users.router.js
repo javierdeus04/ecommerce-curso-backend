@@ -1,7 +1,7 @@
 import { Router, urlencoded } from 'express';
 import passport from 'passport';
 import UserController from '../../controllers/users.controller.js';
-import { isAdmin } from '../../utils.js';
+import { isAdmin } from '../../../utils/utils.js';
 import { createUserDTO } from '../../dao/dto/user.dto.js';
 
 const router = Router();

@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import cors from  'cors';
 
-import { __dirname } from './utils.js';
+import { __dirname } from '../utils/utils.js'
 import { URI } from './db/mongodb.js';
 import authRouter from './routers/api/auth.router.js';
 import indexRouter from './routers/views/index.router.js';
@@ -15,6 +15,7 @@ import cartsRouter from './routers/api/carts.router.js';
 import usersRouter from './routers/api/users.router.js';
 import ordersRouter from './routers/api/orders.router.js'
 import { init as initPassport} from './config/passport.config.js';
+import { errorHandlerMiddleware } from './middlewares/error-handler-middleware.js';
 
 
 const app = express();
@@ -34,8 +35,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser(COOKIE_SECRET));
 
 app.engine('handlebars', handlebars.engine());
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../src/views'));
 app.set('view engine', 'handlebars');
+
 
 initPassport();
 app.use(passport.initialize());
@@ -51,6 +53,7 @@ app.get('/', (req, res) => {
         res.redirect('/login');
     }
 });
+app.use(errorHandlerMiddleware)
 
 ////////
 

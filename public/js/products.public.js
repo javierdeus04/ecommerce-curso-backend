@@ -1,21 +1,10 @@
-const cartButton = document.getElementById('cart-button');
-
-cartButton.addEventListener('click', () => {
-<<<<<<< HEAD
-  window.location.href = `/carts/current`;
-=======
-  const cid = '6568dcaae14f72845e268026';
-  window.location.href = `/carts/${cid}`;
->>>>>>> 806be6608fe5d4930a6fbdc75e54893f08092f2e
-})
-
 const logoutButton = document.getElementById('logout-button');
 
 logoutButton.addEventListener('click', async () => {
 
   try {
-    const response = await fetch(`/sessions/logout`, {
-      method: 'GET',
+    const response = await fetch(`/auth/logout`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -36,11 +25,10 @@ const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
 
 addToCartButtons.forEach((button) => {
   button.addEventListener('click', async () => {
-    const cid = '6568dcaae14f72845e268026';
     const pid = button.dataset.pid;
 
     try {
-      const response = await fetch(`/carts/${cid}/product/${pid}`, {
+      const response = await fetch(`/carts/current/${pid}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +36,7 @@ addToCartButtons.forEach((button) => {
       });
 
       if (!response.ok) {
-        throw new Error('Error al agregar el producto al carrito: ' + response.statusText);
+        throw new Error('Error al agregar el producto al carrito');
       }
       const data = await response.json();
       Swal.fire({

@@ -1,4 +1,7 @@
 import UsersService from "../services/users.service.js";
+import { CustomError } from "../../utils/CustomErrors.js";
+import { generatorProductError } from "../../utils/CauseMessageError.js";
+import EnumsError from "../../utils/EnumsError.js";
 
 export default class UserController {
     static getAll(filter = {}) {
@@ -13,6 +16,25 @@ export default class UserController {
             password,
             age
         } = data;
+
+        if (!first_name ||
+            !last_name ||
+            !email ||
+            !password ||
+            !age) {
+            CustomError.create({
+                name: 'Invalid data user',
+                cause: generatorUserError({
+                    first_name,
+                    last_name,
+                    email,
+                    password,
+                    age
+                }),
+                message: 'Error al crear un nuevo usuario',
+                code: EnumsError.BAD_REQUEST_ERROR,
+            })
+        }
 
         const newUser = {
             first_name,

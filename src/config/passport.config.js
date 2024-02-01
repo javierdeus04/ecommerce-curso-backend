@@ -4,9 +4,12 @@ import { Strategy as GithubStrategy } from "passport-github2";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import UserService from "../services/users.service.js";
 import CartsService from "../services/carts.service.js";
-import { createHash, isValidPassword, JWT_SECRET, generateToken } from "../utils.js";
+import { createHash, isValidPassword, JWT_SECRET, generateToken } from "../../utils/utils.js";
 import config from './config.js';
-
+import UserController from "../controllers/users.controller.js";
+import { CustomError } from "../../utils/CustomErrors.js";
+import { generatorUserError } from "../../utils/CauseMessageError.js";
+import EnumsError from "../../utils/EnumsError.js";
 
 const cookieExtractor = (req) => {
     let token = null;
@@ -67,16 +70,30 @@ export const init = () => {
             } } = req;
 
         if (!first_name ||
-            !last_name
+            !last_name ||
+            !email ||
+            !password ||
+            !age
         ) {
-            return done(new Error('Complete los campos requeridos'))
+            CustomError.create({
+                name: 'Invalid data user',
+                cause: generatorUserError({
+                    first_name,
+                    last_name,
+                    email,
+                    password,
+                    age
+                }),
+                message: 'Error al crear un nuevo usuario',
+                code: EnumsError.BAD_REQUEST_ERROR,
+            })
         }
         const result = await UserService.getAll({ email })
         let user = result[0] 
         if (user) {
             return done(new Error(`El usuario ${email} ya existe`))
         }
-        user = await UserService.create({
+        user = await UserController.create({
             first_name,
             last_name,
             email,
@@ -117,13 +134,14 @@ export const init = () => {
     }
     ));
 
-    passport.use('recovery-password', new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-        const user = await UserModel.findOne({ email });
+
+    passport.use('recovery-password', new LocalStrategy({ usernameField: 'email' }, async (email, password, _id, done) => {
+        const user = await UserService.getAll({ email });
         if (!user) {
             return done(null, false, { message: 'Correo o contraseña invalidos' });
         }
         user.password = createHash(password);
-        await UserModel.updateOne({ email }, user);
+        await UserService.updateById( _id, user);
         return done(null, user);
     }));
 
@@ -134,7 +152,7 @@ export const init = () => {
     }
     passport.use('github', new GithubStrategy(githuboptions, async (accessToken, refreshToken, profile, done) => {
         const email = profile._json.email;
-        let user = await UserModel.findOne({ email });
+        let user = await UserService.getAll({ email });
         if (user) {
             return done(null, user)
         }
@@ -145,7 +163,7 @@ export const init = () => {
             password: '',
             age: 32
         };
-        const newUser = await UserModel.create(user);
+        const newUser = await UserService.create(user);
         done(null, newUser);
     }))
 }

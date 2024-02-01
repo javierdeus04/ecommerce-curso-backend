@@ -10,7 +10,7 @@ registerForm.addEventListener('submit', async (event) => {
     const age = document.getElementById('age-input').value;
 
     try {
-        const response = await fetch('/api/sessions/register', {
+        const response = await fetch('/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

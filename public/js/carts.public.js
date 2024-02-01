@@ -1,15 +1,7 @@
-<<<<<<< HEAD
-const homeButton = document.getElementById('home-button');
-
-homeButton.addEventListener('click', () => {
-    window.location.href = '/products';
-});
-
 const deleteButtons = document.querySelectorAll('.delete-button');
 
 deleteButtons.forEach((button) => {
     button.addEventListener('click', async () => {
-        const cid = '6568dcaae14f72845e268026';
         const pid = button.dataset.productId;
         Swal.fire({
             title: `¿Está seguro de que quiere eliminar el producto seleccionado?`,
@@ -19,7 +11,7 @@ deleteButtons.forEach((button) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`/carts/${cid}/product/${pid}`, {
+                    const response = await fetch(`/carts/current/${pid}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -27,7 +19,7 @@ deleteButtons.forEach((button) => {
                     });
 
                     if (!response.ok) {
-                        throw new Error('Error al eliminar el producto del carrito: ' + response.statusText);
+                        throw new Error('Error al eliminar el producto del carrito');
                     }
                     const data = await response.json();
                     Swal.fire({
@@ -37,7 +29,7 @@ deleteButtons.forEach((button) => {
                         showConfirmButton: false,
                         timer: 1500
                     });
-                    window.location.href = `/carts/${cid}`
+                    window.location.href = `/carts/current`
                     return data;
                 } catch (error) {
                     console.error(error.message);
@@ -51,8 +43,6 @@ const emptyCart = document.getElementById('empty-cart-button');
 
 emptyCart.addEventListener('click', () => {
 
-    const cid = '6568dcaae14f72845e268026';
-
     Swal.fire({
         title: `Esta seguro que quiere vaciar el carrito?`,
         showDenyButton: true,
@@ -61,7 +51,7 @@ emptyCart.addEventListener('click', () => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`/carts/${cid}`, {
+                const response = await fetch(`/carts/current`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -72,9 +62,9 @@ emptyCart.addEventListener('click', () => {
                     throw new Error('Error al vaciar el carrito');
                 }
 
-                console.log(`El carrito ${cid} ha sido vaciado correctamente`);
+                console.log(`El carrito ha sido vaciado correctamente`);
 
-                window.location.href = `/carts/${cid}`;
+                window.location.href = `/carts/current`;
             } catch (error) {
                 console.error('Error:', error.message);
             };
@@ -82,140 +72,35 @@ emptyCart.addEventListener('click', () => {
     });
 })
 
-const decreaseProductQuantityButtons = document.querySelectorAll('.decrease-product');
+const finalizePurchase = document.getElementById('finalize-purchase');
 
-decreaseProductQuantityButtons.forEach((button) => {
-    button.addEventListener('click', async () => {
-        const cid = '6568dcaae14f72845e268026';
-        const pid = button.dataset.productId;
-        try {
-            const response = await fetch(`/carts/${cid}/product/${pid}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al eliminar el producto del carrito: ' + response.statusText);
-            }
-            const data = await response.json();
-            window.location.href = `/carts/${cid}`
-            return data;
-        } catch (error) {
-            console.error(error.message);
-        }
-    });
-});
-
-const increaseProductQuantityButtons = document.querySelectorAll('.increase-product');
-
-increaseProductQuantityButtons.forEach((button) => {
-    button.addEventListener('click', async () => {
-        const cid = '6568dcaae14f72845e268026';
-        const pid = button.dataset.pid;
-
-        try {
-            const response = await fetch(`/carts/${cid}/product/${pid}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al agregar el producto al carrito: ' + response.statusText);
-            }
-            const data = await response.json();
-            window.location.href = `/carts/${cid}`;
-            return data;
-        } catch (error) {
-            console.error(error.message);
-        }
-    });
-});
-
-=======
-const homeButton = document.getElementById('home-button');
-
-homeButton.addEventListener('click', () => {
-    window.location.href = '/products';
-});
-
-const deleteButtons = document.querySelectorAll('.delete-button');
-
-deleteButtons.forEach((button) => {
-    button.addEventListener('click', async () => {
-        const cid = '6568dcaae14f72845e268026';
-        const pid = button.dataset.productId;
-        Swal.fire({
-            title: `¿Está seguro de que quiere eliminar el producto seleccionado?`,
-            showDenyButton: true,
-            confirmButtonText: "Eliminar",
-            denyButtonText: `Cerrar`
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/carts/${cid}/product/${pid}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Error al eliminar el producto del carrito: ' + response.statusText);
-                    }
-                    const data = await response.json();
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Producto eliminado correctamente",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    window.location.href = `/carts/${cid}`
-                    return data;
-                } catch (error) {
-                    console.error(error.message);
-                }
-            }
-        })
-    });
-});
-
-const emptyCart = document.getElementById('empty-cart-button');
-
-emptyCart.addEventListener('click', () => {
-
-    const cid = '6568dcaae14f72845e268026';
+finalizePurchase.addEventListener('click', () => {
 
     Swal.fire({
-        title: `Esta seguro que quiere vaciar el carrito?`,
+        title: `Confirmar compra?`,
         showDenyButton: true,
-        confirmButtonText: "Vaciar",
-        denyButtonText: `Cerrar`
+        confirmButtonText: "Si",
+        denyButtonText: `Cancelar`
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`/carts/${cid}`, {
-                    method: 'DELETE',
+                const response = await fetch(`/carts/current/purchase`, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
 
                 if (!response.ok) {
-                    throw new Error('Error al vaciar el carrito');
+                    throw new Error('Error al realizar compra');
                 }
 
-                console.log(`El carrito ${cid} ha sido vaciado correctamente`);
+                console.log(`Pedido realizado con exito`);
 
-                window.location.href = `/carts/${cid}`;
+                window.location.href = `/carts/current`;
             } catch (error) {
                 console.error('Error:', error.message);
             };
         }
     });
 })
->>>>>>> 806be6608fe5d4930a6fbdc75e54893f08092f2e

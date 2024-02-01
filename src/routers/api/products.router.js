@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import ProductsController from '../../controllers/products.controller.js';
+import { isAdmin } from '../../../utils/utils.js';
+import { errorHandlerMiddleware } from '../../middlewares/error-handler-middleware.js';
 
 const router = Router();
 
@@ -12,22 +14,23 @@ router.get('/products', async (req, res) => {
     }
 });
 
-router.get('/products/:pid', async (req, res) => {
+router.get('/products/:pid', async (req, res, next) => {
     const { pid } = req.params;
     try {
         const product = await ProductsController.getById(pid);
         res.status(200).json(product);
     } catch (error) {
-        res.status(400).json({ message: 'Producto no encontrado' })
+        next(error)
     }
 });
 
-router.post('/products', async (req, res) => {
+router.post('/products', async (req, res, next) => {
     try {
-        const product = await ProductsController.create(req.body)
+        const { body } = req;
+        const product = await ProductsController.create(body)
         res.status(201).json(product);
     } catch (error) {
-        res.status(400).json({ message: 'Error al crear el producto' })
+        next(error);
     }
 });
 
