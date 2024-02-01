@@ -54,9 +54,9 @@ addToCartButtons.forEach((button) => {
 });
 
 
-const addButton = document.getElementById('add-button');
+const addProductButton = document.getElementById('add-product-button');
 
-addButton.addEventListener('click', async (event) => {
+addProductButton.addEventListener('click', async (event) => {
   event.preventDefault();
 
   const { value: formValues } = await Swal.fire({
@@ -84,9 +84,6 @@ addButton.addEventListener('click', async (event) => {
     }
   });
   if (formValues) {
-
-
-
     try {
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -105,6 +102,11 @@ addButton.addEventListener('click', async (event) => {
       });
 
       if (!response.ok) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Hubo un problema al intenatr agregar el producto",
+        });
         throw new Error('Error al agregar el producto');
       }
       console.log('Producto agregado correctamente');

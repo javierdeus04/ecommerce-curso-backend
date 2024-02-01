@@ -2,7 +2,7 @@ import { Router } from 'express';
 import path from 'path';
 import passport from 'passport';
 
-import { buildResponsePaginated } from '../../../utils/utils.js'
+import { admin, buildResponsePaginated } from '../../../utils/utils.js'
 import ProductModel from '../../dao/models/product.model.js'
 import ProductsController from '../../controllers/products.controller.js';
 import CartsController from '../../controllers/carts.controller.js';
@@ -41,10 +41,15 @@ router.get('/products', authenticateJWT, async (req, res) => {
         const baseUrl = 'http://localhost:8080';
         const data = buildResponsePaginated({ ...products, sort, search, stock }, baseUrl);
 
-        if (req.user) {
-            const user = req.user;
-            const userDTO = createUserDTO(user);
-            res.render('products', { title: 'Productos', sort, baseUrl, ...data, userDTO });
+        if(req.user) {
+            if(req.user.role === "admin") {
+                const userAdmin = req.user;
+                res.render('products', { title: 'Productos', sort, baseUrl, ...data, userAdmin });
+            } else {
+                const user = req.user;
+                const userDTO = createUserDTO(user);
+                res.render('products', { title: 'Productos', sort, baseUrl, ...data, userDTO });
+            }
         } else {
             res.render('products', { title: 'Productos', sort, baseUrl, ...data });
         }
@@ -101,10 +106,16 @@ router.get('/login', async (req, res) => {
 })
 
 router.get('/users/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    if (!req.user) {
+    if(!req.user) {
         return res.redirect('/login')
     }
-    res.render('profile', { title: 'Perfil de usuario', user: req.user.toJSON() });
+    if(req.user.role === "admin") {
+        req.user = admin;
+    } 
+    if(req.user.role === "user") {
+        req.user = req.user.toJSON();
+    }
+    res.render('profile', { title: 'Perfil de usuario', user: req.user });
 })
 
 router.get('/register', (req, res) => {

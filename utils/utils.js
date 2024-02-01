@@ -33,15 +33,6 @@ export const verifyToken = (token) => {
 
 }
 
-export const isAdmin = (req, res, next) => {
-    if (req.isAuthenticated() && req.user.email === config.adminEmail && req.user.password === config.adminPassword) {
-        req.user.role = 'admin';
-        return next();
-    } else {
-        res.status(403).send('Forbidden');
-    }
-};
-
 const __filename = url.fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
@@ -78,18 +69,39 @@ export const buildResponsePaginated = (data, baseUrl = URL_BASE) => {
 }
 
 export const admin = {
+    first_name: 'Administrador',
+    last_name: 'Coderhouse',
     email: 'adminCoder@coder.com',
     password: 'adminCod3r123',
-    role: 'admin'
+    role: 'admin',
+    age: ''
 }
 
-export const authenticateJWT = (req, res, next) => { passport.authenticate('jwt', { session: false }, (err, user, info) => {
-      if (user) {
-        req.user = user;
-      }
-      next();
+export const authenticateJWT = (req, res, next) => {
+    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        if (user) {
+            req.user = user;
+        }
+        next();
     })(req, res, next);
-  };
+};
+
+export const isAdmin = (req, res, next) => {passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+
+        if (!user) {
+            return res.status(401).json({ message: 'No autorizado' });
+        }
+
+        if (user.role === 'admin') {
+            return next();
+        } else {
+            return res.status(403).json({ message: 'Acceso prohibido. El usuario no es un admin.' });
+        }
+    })(req, res, next);
+};
 
 export const generateProduct = () => {
     return {

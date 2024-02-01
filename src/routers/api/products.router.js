@@ -24,7 +24,7 @@ router.get('/products/:pid', async (req, res, next) => {
     }
 });
 
-router.post('/products', async (req, res, next) => {
+router.post('/products', isAdmin, async (req, res, next) => {
     try {
         const { body } = req;
         const product = await ProductsController.create(body)

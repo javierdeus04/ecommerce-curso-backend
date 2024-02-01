@@ -4,7 +4,7 @@ import { Strategy as GithubStrategy } from "passport-github2";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import UserService from "../services/users.service.js";
 import CartsService from "../services/carts.service.js";
-import { createHash, isValidPassword, JWT_SECRET, generateToken } from "../../utils/utils.js";
+import { createHash, isValidPassword, JWT_SECRET, generateToken, admin } from "../../utils/utils.js";
 import config from './config.js';
 import UserController from "../controllers/users.controller.js";
 import { CustomError } from "../../utils/CustomErrors.js";
@@ -28,17 +28,26 @@ export const init = () => {
 
     passport.use('jwt', new JWTStrategy(jwtOptions, async (payload, done) => {
         try {
-            const user = await UserService.getById(payload.id);
+            let user;
+    
+            if (payload.id) {
+                user = await UserController.getById(payload.id);
+            } else if (payload.email === admin.email) {
+                user = admin;
+            }
+    
             if (!user) {
                 return done(null, false, { message: 'Usuario no encontrado' });
             }
-
-            if (!user.cart) {
+    
+            if (user._id && !user.cart) {
                 const newCart = await CartsService.create({ products: [] });
                 user.cart = newCart;
                 await user.save();
             }
+    
             return done(null, user);
+    
         } catch (error) {
             return done(error);
         }
@@ -48,18 +57,6 @@ export const init = () => {
         usernameField: 'email',
         passReqToCallback: true,
     };
-
-    passport.use('admin', new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-        if (email === config.adminEmail && password === config.adminPassword) {
-            const adminUser = {
-                email: config.adminEmail,
-                role: 'admin'
-            };
-            return done(null, adminUser);
-        } else {
-            return done(null, false, { message: 'Credenciales no validas' });
-        }
-    }));
 
     passport.use('register', new LocalStrategy(registerOptions, async (req, email, password, done) => {
         const {
@@ -89,7 +86,7 @@ export const init = () => {
             })
         }
         const result = await UserService.getAll({ email })
-        let user = result[0] 
+        let user = result[0]
         if (user) {
             return done(new Error(`El usuario ${email} ya existe`))
         }
@@ -108,27 +105,26 @@ export const init = () => {
         if (!email || !password) {
             return done(new Error('Todos los campos requeridos'));
         }
+
         let user;
-        if (email === config.adminEmail && password === config.adminPassword) {
-            user = {
-                email: config.adminEmail,
-                role: 'admin'
-            };
-        } else {
-            const result = await UserService.getAll({ email });
-            user = result[0]
-    
-            if (!user) {
+
+        const result = await UserService.getAll({ email });
+
+        if(!result || result.length === 0) {
+            if(email === admin.email && password === admin.password) {
+                user = admin;
+            } else {
                 return done(new Error('Correo o contraseña invalidos'));
             }
+        } else {
+            user = result[0]
     
             const isNotValidPass = !isValidPassword(password, user);
             if (isNotValidPass) {
-                console.log('Contraseña inválida');
                 return done(new Error('Correo o contraseña invalidos'));
             }
-        }
-    
+        } 
+
         const token = generateToken(user);
         done(null, { user, token });
     }
@@ -141,7 +137,7 @@ export const init = () => {
             return done(null, false, { message: 'Correo o contraseña invalidos' });
         }
         user.password = createHash(password);
-        await UserService.updateById( _id, user);
+        await UserService.updateById(_id, user);
         return done(null, user);
     }));
 

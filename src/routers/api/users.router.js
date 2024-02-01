@@ -52,7 +52,7 @@ router.post('/users/recovery-password', passport.authenticate('recovery-password
     res.status(200).redirect('/login');
 });
 
-router.get('/users', passport.authenticate('admin', { session: false }), async (req, res) => {
+router.get('/users', isAdmin, async (req, res) => {
     try {
         const users = await UserController.getAll();
         const usersDTO = createUserDTO(users);
@@ -62,7 +62,7 @@ router.get('/users', passport.authenticate('admin', { session: false }), async (
     }
 });
 
-router.get('/users/:uid', passport.authenticate('admin', { session: false }), async (req, res) => {
+router.get('/users/:uid', isAdmin, async (req, res) => {
     const { uid } = req.params;
     try {
         const user = await UserController.getById(uid);
