@@ -13,11 +13,11 @@ export default class OrdersController {
 
     static async create(data) {
         const { user } = data;
-    
+
         const code = uuidv4();
         const userResult = await UsersService.getById(user);
         const userId = user._id.toString();
-    
+
         const currentUserWithCart = await userResult.populate('cart');
 
         const currentCart = currentUserWithCart.cart;
@@ -25,44 +25,58 @@ export default class OrdersController {
         const itemsInCart = await currentCart.populate('products.product');
 
         const productsInCart = itemsInCart.products;
-    
+
         const allProducts = await ProductsService.getAll();
         const stockProducts = allProducts.filter(p => p.stock !== 0);
-    
+
         const productsToPurchase = [];
-    
+
         for (const cartProduct of productsInCart) {
             const productsWithStockInCart = stockProducts.find(stockProduct => stockProduct._id.toString() === cartProduct.product._id.toString());
 
             if (productsWithStockInCart) {
                 const availableStock = productsWithStockInCart.stock;
                 const quantityInCart = cartProduct.quantity;
-    
+
                 if (availableStock >= quantityInCart) {
-                    productsToPurchase.push(cartProduct);
-                } 
-            } 
+                    productsToPurchase.push({
+                        product: cartProduct.product._id,
+                        quantity: quantityInCart
+                    });
+                }
+            }
         }
-    
-        
+
+
         let totalPrice = 0;
-        productsToPurchase.forEach(item => {
-                const productTotalPrice = item.product.price * item.quantity;
-                totalPrice += productTotalPrice;
-        });
-    
+
+        for (const item of productsToPurchase) {
+            try {
+                const product = await ProductsService.getById(item.product);
+
+                if (product && product.price) {
+                    const productTotalPrice = product.price * item.quantity;
+                    totalPrice += productTotalPrice;
+                } else {
+                    console.error(`Error: No se pudo obtener información del producto ${item.product}`);
+                }
+            } catch (error) {
+                console.error(`Error al obtener el producto ${item.product}: ${error.message}`);
+            }
+        }
+
         const newOrder = {
             code,
             user: userId,
             products: productsToPurchase,
             total: totalPrice,
-        };    
+        };
         const createdOrder = await OrdersService.create(newOrder);
-    
+
         const { orders } = userResult;
         orders.push(createdOrder);
         await UsersService.updateById(userId, { orders });
-    
+
         return createdOrder;
     }
 
@@ -89,11 +103,11 @@ export default class OrdersController {
             throw new Error('Usuario no encontrado');
         }
         return UsersService.updateById(id, { orders: [] });
-        
+
     }
 
     static async deleteById(id) {
-        await UserController.getById(id);
-        return UsersService.deleteById(id);
+        await OrdersController.getById(id);
+        return OrdersService.deleteById(id);
     }
 }

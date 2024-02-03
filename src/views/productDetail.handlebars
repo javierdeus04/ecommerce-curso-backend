@@ -1,26 +1,62 @@
-<ul >
-  <li style="display: inline-block"><button id="home-button"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor"
-    class="bi bi-house-door" viewBox="0 0 16 16">
-    <path
-      d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
-  </svg></button></li>
-  <li style="display: inline-block; float: right"><button id="cart-button"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-</svg></button></li>
-  </ul>
-<h1>Detalle del producto</h1>
-<header><img src="{{productObject.thumbnail}}" alt="" width="100px"> {{productObject.title}}</header>
 <ul>
-  <li>Categoria: {{productObject.category}}</li>
-  <li>Descripcion: {{productObject.description}}</li>
-  <li>Precio: ${{productObject.price}}</li>
-  <li>Stock: {{productObject.stock}}</li>
-  <li>Codigo: {{productObject.code}}</li>
+  <a href="/products">
+    <li style="display: inline-block"><button id="home-button"><svg xmlns="http://www.w3.org/2000/svg" width="36"
+          height="36" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+          <path
+            d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
+        </svg></button></li>
+  </a>
+  {{#if userDTO }}
+  <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
+        width="36" height="36" fill="currentColor" class="bi bi-door-open" viewBox="0 0 16 16">
+        <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1" />
+        <path
+          d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z" />
+      </svg></button></li>
+  <li style="display: inline-block; float: right; margin-right: 20px">
+    <a href="/carts/current"><button><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor"
+          class="bi bi-cart" viewBox="0 0 16 16">
+          <path
+            d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+        </svg></button></a>
+  </li>
+  {{/if}}
+  {{#if userAdmin}}
+  <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
+        width="36" height="36" fill="currentColor" class="bi bi-door-open" viewBox="0 0 16 16">
+        <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1" />
+        <path
+          d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117zM11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z" />
+      </svg></button></li>
+  {{/if}}
 </ul>
+ <h1 id="title">{{productObject.title}}</h1>
+<img id="thumbnail" src="{{productObject.thumbnail}}" alt="" width="100px">
+<ul>
+  <li id="category">Categoria: {{productObject.category}}</li>
+  <li id="description">Descripcion: {{productObject.description}}</li>
+  <li id="price">Precio: ${{productObject.price}}</li>
+  <li id="stock">Stock: {{productObject.stock}}</li>
+  <li id="code">Codigo: {{productObject.code}}</li>
+</ul>
+{{#if userDTO}}
 <button id="add-to-cart-button" data-pid="{{productObject._id}}">Agregar al carrito</button>
-<span>Nota: Los botones de abajo solo aparecerian siendo superuser</span>
+{{/if}}
+
+{{#unless user}}
+<a href="/login"><button>Agregar al carrito</button></a>
+{{/unless}}
+
+
+{{#if userAdmin}}
 <button id="update-button" data-product-id="{{productObject._id}}">Actualizar</button>
 <button id="delete-button" data-product-id="{{productObject._id}}">Eliminar</button>
+{{/if}}
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-<script type="module" src="/js/productDetail.public.js"></script>
+{{#if userAdmin}}
+<script type="module" src="/js/product-detail/productDetail.admin.public.js"></script>
+{{/if}}
+{{#if userDTO}}
+<script type="module" src="/js/product-detail/productDetail.user.public.js"></script>
+{{/if}}

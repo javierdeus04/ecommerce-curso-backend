@@ -34,7 +34,7 @@ router.post('/products', isAdmin, async (req, res, next) => {
     }
 });
 
-router.put('/products/:pid', async (req, res) => {
+router.put('/products/:pid', isAdmin, async (req, res) => {
     const { pid } = req.params;
     const { body } = req;
     try {
@@ -45,7 +45,7 @@ router.put('/products/:pid', async (req, res) => {
     }
 });
 
-router.delete('/products/:pid', async (req, res) => {
+router.delete('/products/:pid', isAdmin, async (req, res) => {
     const { pid } = req.params;
     try {
         await ProductsController.deleteById(pid);

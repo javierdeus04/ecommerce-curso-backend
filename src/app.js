@@ -44,7 +44,7 @@ app.use(passport.initialize());
 
 ////////
 
-app.use('/', indexRouter, productsRouter, cartsRouter, authRouter, usersRouter);
+app.use('/', indexRouter, productsRouter, cartsRouter, authRouter, usersRouter, ordersRouter);
 app.use('/api', productsRouter, cartsRouter, authRouter, usersRouter, ordersRouter);
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {

@@ -43,12 +43,21 @@ router.post('/orders/current', passport.authenticate('jwt', { session: false }),
 
 router.delete('/orders/current', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
-        
         const uid = req.user._id.toString();
         await OrdersController.deleteAllOrders(uid)
         res.status(200).end();
     } catch (error) {
         next(error);
+    }
+})
+
+router.delete('/orders/current/:oid', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    const { oid } = req.params;
+    try {
+        await OrdersController.deleteById(oid);
+        res.status(204).end();
+    } catch (error) {
+        res.status(400).json({ message: 'Error al intentar eliminar la orden' })
     }
 })
 

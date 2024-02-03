@@ -1,10 +1,12 @@
 <ul>
-    <a href="/products" role="button"><li style="display: inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="36"
-                height="36" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+    <a href="/products" role="button">
+        <li style="display: inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
                 <path
                     d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
-            </svg></li></a>
-            <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
+            </svg></li>
+    </a>
+    <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
                 width="36" height="36" fill="currentColor" class="bi bi-door-open" viewBox="0 0 16 16">
                 <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1" />
                 <path
@@ -20,16 +22,20 @@
 </ul>
 
 <article>
-    <header><b>Perfil de usuario</b></header>
+    <header><b>Detalle de orden: {{productsPopulated.code}}</b></header>
     <ul>
-        <li>Nombre: {{user.first_name}}</li>
-        <li>Apellido: {{user.last_name}}</li>
-        <li>Email: {{user.email}}</li>
-        <li>Edad: {{user.age}}</li>
-        <li><a href="/users/current/orders">Mis ordenes</a></li>
+        <li>Fecha de compra: {{productsPopulated.updatedAt}}</li>
+        <li>Productos: {{#each productsPopulated.products}}
+            <ul>
+                <li>{{this.quantity}} x {{this.product.title}}</li>
+            </ul>
+            {{/each}}
+        </li>
+        <li>Total: ${{productsPopulated.total}}</li>
     </ul>
 </article>
-<button id="update-profile-button">Actualizar datos</button>
-<button id="delete-profile-button">Eliminar usuario</button>
+<button id="delete-button">Eliminar orden</button>
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+{{!--
+<script type="module" src="/js/productDetail.public.js"></script> --}}

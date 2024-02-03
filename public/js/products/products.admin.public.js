@@ -20,40 +20,6 @@ logoutButton.addEventListener('click', async () => {
   }
 })
 
-
-const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
-
-addToCartButtons.forEach((button) => {
-  button.addEventListener('click', async () => {
-    const pid = button.dataset.pid;
-
-    try {
-      const response = await fetch(`/carts/current/${pid}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al agregar el producto al carrito');
-      }
-      const data = await response.json();
-      Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Producto agregado al carrito",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      return data;
-    } catch (error) {
-      console.error(error.message);
-    }
-  });
-});
-
-
 const addProductButton = document.getElementById('add-product-button');
 
 addProductButton.addEventListener('click', async (event) => {
@@ -117,14 +83,6 @@ addProductButton.addEventListener('click', async (event) => {
   }
 })
 
-const detailButtons = document.querySelectorAll('.detail-button');
-
-detailButtons.forEach(button => {
-  button.addEventListener('click', function () {
-    const pid = this.getAttribute('data-pid');
-    window.location.href = `/products/${pid}`;
-  });
-});
 
 
 

@@ -12,7 +12,7 @@ router.post('/auth/register', passport.authenticate('register', { session: false
 
 router.post('/auth/login', passport.authenticate('login', { session: false, failureRedirect: '/login' }), (req, res) => {
     const { user, token } = req.user;
-    res.cookie('access_token', token, { maxAge: 1000 * 60 * 60, httpOnly: true, signed: true });
+    res.cookie('access_token', token, { maxAge: 9000 * 60 * 60, httpOnly: true, signed: true });
     res.status(200).json({ message: `Sesion iniciada con exito. Bienvenido ${user.email}, su rol es de ${user.role}` });
 });
 

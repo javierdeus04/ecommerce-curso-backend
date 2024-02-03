@@ -1,3 +1,25 @@
+const logoutButton = document.getElementById('logout-button');
+
+logoutButton.addEventListener('click', async () => {
+
+  try {
+    const response = await fetch(`/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al intentar cerrar sesión');
+    } else {
+      window.location.href = '/login';
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
+})
+
 const deleteButtons = document.querySelectorAll('.delete-button');
 
 deleteButtons.forEach((button) => {
@@ -72,20 +94,20 @@ emptyCart.addEventListener('click', () => {
     });
 })
 
-const finalizePurchase = document.getElementById('finalize-purchase');
+const createOrder = document.getElementById('create-order');
 
-finalizePurchase.addEventListener('click', () => {
+createOrder.addEventListener('click', () => {
 
     Swal.fire({
-        title: `Confirmar compra?`,
+        title: `Crear nueva orden?`,
         showDenyButton: true,
         confirmButtonText: "Si",
         denyButtonText: `Cancelar`
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`/carts/current/purchase`, {
-                    method: 'GET',
+                const response = await fetch(`/orders/current`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -97,7 +119,7 @@ finalizePurchase.addEventListener('click', () => {
 
                 console.log(`Pedido realizado con exito`);
 
-                window.location.href = `/carts/current`;
+                window.location.href = `/carts/current/order`;
             } catch (error) {
                 console.error('Error:', error.message);
             };

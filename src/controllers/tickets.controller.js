@@ -14,6 +14,8 @@ export default class TicketsController {
     static async create(data) {
 
         const { user } = data;
+        console.log(user);
+
         const code = uuidv4();
         const currentUser = await UsersService.getById(user);
 

@@ -32,8 +32,12 @@ export const init = () => {
     
             if (payload.id) {
                 user = await UserController.getById(payload.id);
+      
             } else if (payload.email === admin.email) {
                 user = admin;
+            } else {
+                user = { role: 'anonymous' };
+                console.log('iuser', user);
             }
     
             if (!user) {
@@ -47,7 +51,6 @@ export const init = () => {
             }
     
             return done(null, user);
-    
         } catch (error) {
             return done(error);
         }

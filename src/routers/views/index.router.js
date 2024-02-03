@@ -4,14 +4,14 @@ import passport from 'passport';
 
 import { admin, buildResponsePaginated } from '../../../utils/utils.js'
 import ProductModel from '../../dao/models/product.model.js'
-import ProductsController from '../../controllers/products.controller.js';
-import CartsController from '../../controllers/carts.controller.js';
-//import CartsManager from '../../dao/Carts.manager.js';
 import EmailService from '../../services/email.service.js';
 import { __dirname } from '../../../utils/utils.js';
 import TwilioService from '../../services/twilio.service.js';
 import { generateProduct, authenticateJWT } from '../../../utils/utils.js';
 import { createUserDTO } from '../../dao/dto/user.dto.js';
+import ProductsController from '../../controllers/products.controller.js';
+import { tr } from '@faker-js/faker';
+import OrdersController from '../../controllers/orders.controller.js';
 
 
 const router = Router();
@@ -41,8 +41,8 @@ router.get('/products', authenticateJWT, async (req, res) => {
         const baseUrl = 'http://localhost:8080';
         const data = buildResponsePaginated({ ...products, sort, search, stock }, baseUrl);
 
-        if(req.user) {
-            if(req.user.role === "admin") {
+        if (req.user) {
+            if (req.user.role === "admin") {
                 const userAdmin = req.user;
                 res.render('products', { title: 'Productos', sort, baseUrl, ...data, userAdmin });
             } else {
@@ -60,11 +60,29 @@ router.get('/products', authenticateJWT, async (req, res) => {
     }
 });
 
-router.get('/products/:pid', async (req, res) => {
-    const { pid } = req.params;
-    const product = await ProductsManager.getById(pid);
-    const productObject = product.toObject();
-    res.render('productDetail', { title: 'Productos', productObject });
+router.get('/products/:pid', authenticateJWT, async (req, res) => {
+    try {
+        const { pid } = req.params;
+        const product = await ProductsController.getById(pid);
+        const productObject = product.toObject();
+
+        const user = req.user;
+
+        if (user) {
+            if (user.role === "admin") {
+                const userAdmin = user;
+                res.render('productDetail', { title: 'Productos', productObject, userAdmin, user });
+            } else {
+                const userDTO = createUserDTO(user);
+                res.render('productDetail', { title: 'Productos', productObject, userDTO, user });
+            }
+        } else {
+            res.render('productDetail', { title: 'Productos', productObject });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
 });
 
 router.get('/chat', (req, res) => {
@@ -95,7 +113,7 @@ router.get('/carts/current/purchase', passport.authenticate('jwt', { session: fa
     try {
         const user = req.user;
         const ticket = req.finalizedPurchase;
-        res.render('purchase', {title: 'Pedido confirmado', ticket})
+        res.render('purchase', { title: 'Pedido confirmado', user, ticket })
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
@@ -106,17 +124,55 @@ router.get('/login', async (req, res) => {
 })
 
 router.get('/users/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    if(!req.user) {
+    if (!req.user) {
         return res.redirect('/login')
     }
-    if(req.user.role === "admin") {
+    if (req.user.role === "admin") {
         req.user = admin;
-    } 
-    if(req.user.role === "user") {
+    }
+    if (req.user.role === "user") {
         req.user = req.user.toJSON();
     }
     res.render('profile', { title: 'Perfil de usuario', user: req.user });
 })
+
+router.get('/users/current/orders', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const user = req.user;
+        const userDTO = createUserDTO(user);
+        const userWithOrders = await user.populate('orders')
+        const orders = userWithOrders.orders.map(order => order.toJSON());
+        const ordersCompleted = orders.filter(order => order.status === 'completed')
+        res.render('orders', { title: 'Lista de ordenes', userDTO, ordersCompleted });
+    } catch (error) {
+
+    }
+})
+
+router.get('/carts/current/order', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const user = req.user;
+        const userDTO = createUserDTO(user);
+        const userWithOrders = await user.populate('orders')
+        const orders = userWithOrders.orders;
+        const currentOrder = orders[orders.length - 1].toJSON();
+        res.render('confirmOrder', { title: 'Confirmacin de orden', userDTO, currentOrder });
+    } catch (error) {
+
+    }
+})
+
+router.get('/users/current/orders/:oid', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const { oid } = req.params;
+        const order = await OrdersController.getById(oid);
+        const productsPopulated = (await order.populate('products.product')).toJSON();
+        res.render('orderDetail', { title: 'Detalle de orden', productsPopulated });
+    } catch (error) {
+
+    }
+})
+
 
 router.get('/register', (req, res) => {
     res.render('register', { title: 'Registro de nuevo usuario' });

@@ -1,11 +1,9 @@
-const addToCartButton = document.getElementById('add-to-cart-button');
+const logoutButton = document.getElementById('logout-button');
 
-addToCartButton.addEventListener('click', async () => {
-    const cid = '6568dcaae14f72845e268026';
-    const pid = addToCartButton.dataset.pid;
+logoutButton.addEventListener('click', async () => {
 
     try {
-        const response = await fetch(`/carts/${cid}/product/${pid}`, {
+        const response = await fetch(`/auth/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -13,23 +11,14 @@ addToCartButton.addEventListener('click', async () => {
         });
 
         if (!response.ok) {
-            throw new Error('Error al agregar el producto al carrito: ' + response.statusText);
+            throw new Error('Error al intentar cerrar sesión');
+        } else {
+            window.location.href = '/login';
         }
-        const data = await response.json();
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Producto agregado al carrito",
-            showConfirmButton: false,
-            timer: 1500
-          });
-        return data;
     } catch (error) {
         console.error(error.message);
     }
-});
-
-
+})
 
 const updateButton = document.getElementById('update-button');
 
@@ -37,14 +26,14 @@ updateButton.addEventListener('click', async (event) => {
     event.preventDefault();
 
     const productId = event.target.dataset.productId;
-    const headerElement = document.querySelector('header');
-    const productTitle = document.querySelector('header img').nextSibling.nodeValue.trim();
-    const productCategory = document.querySelector('li:nth-child(1)').nextSibling.nodeValue.trim();
-    const productDescription = document.querySelector('li:nth-child(2)').textContent.split(":")[1].trim();
-    const productPrice = document.querySelector('li:nth-child(3)').textContent.split("$")[1].trim();
-    const productThumbnail = headerElement.querySelector('img').getAttribute('src');
-    const productStock = document.querySelector('li:nth-child(4)').textContent.split(":")[1].trim();
-    const productCode = document.querySelector('li:nth-child(5)').textContent.split(":")[1].trim();
+
+    const productTitle = document.getElementById('title').innerText.trim();
+    const productCategory = document.getElementById('category').innerText.trim();
+    const productDescription = document.getElementById('description').innerText.trim();
+    const productPrice = document.getElementById('price').innerText.split(":")[1].trim();
+    const productThumbnail = document.getElementById('thumbnail').getAttribute('src');
+    const productStock = document.getElementById('stock').innerText.split(":")[1].trim();
+    const productCode = document.getElementById('code').innerText.split(":")[1].trim();
 
     let formValues;
 
@@ -149,6 +138,14 @@ deleteButton.addEventListener('click', (event) => {
                     throw new Error('Error al eliminar el producto');
                 }
 
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Producto eliminado correctamente",
+                    showConfirmButton: false,
+                    timer: 1500
+                  });
+
                 console.log(`El producto ${productId} ha sido eliminado correctamente`);
 
                 window.location.href = '/products';
@@ -158,18 +155,5 @@ deleteButton.addEventListener('click', (event) => {
         }
     });
 });
-
-const homeButton = document.getElementById('home-button');
-
-homeButton.addEventListener('click', () => {
-    window.location.href = '/products';
-})
-
-const cartButton = document.getElementById('cart-button');
-
-cartButton.addEventListener('click', () => {
-  const cid = '6568dcaae14f72845e268026';
-  window.location.href = `/carts/${cid}`;
-})
 
 

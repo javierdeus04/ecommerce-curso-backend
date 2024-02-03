@@ -87,7 +87,7 @@ export default class CartsController {
 
     static async cartPurchase(id) {
 
-        const userResult = await UsersService.getById(id); 
+        const userResult = await UsersService.getById(id);
         const currentUserWithCart = await userResult.populate('cart');
         const currentCart = currentUserWithCart.cart;
         const currentCartId = currentCart._id;
