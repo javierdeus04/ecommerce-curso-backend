@@ -34,7 +34,7 @@ const deleteButtons = document.querySelectorAll('.delete-button');
 deleteButtons.forEach((button) => {
   button.addEventListener('click', async () => {
     const oid = button.dataset.oid;
-
+    
     Swal.fire({
       title: 'Esta seguro que quiere eliminar la orden seleccionada?',
       showDenyButton: true,

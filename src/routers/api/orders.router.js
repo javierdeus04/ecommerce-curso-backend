@@ -3,7 +3,7 @@ import passport from 'passport';
 
 import OrdersController from '../../controllers/orders.controller.js';
 import UsersService from '../../services/users.service.js';
-import UsersController from '../../controllers/users.controller.js';
+import UserController from '../../controllers/users.controller.js';
 
 
 const router = Router();
@@ -53,8 +53,16 @@ router.delete('/orders/current', passport.authenticate('jwt', { session: false }
 
 router.delete('/orders/current/:oid', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     const { oid } = req.params;
+    const user = req.user;
+    const userId = user._id.toString();
     try {
         await OrdersController.deleteById(oid);
+        const userOrders = user.orders;
+        console.log("PRE", userOrders.length);
+        await UserController.updateById(userId, {
+            $pull: { orders: oid }
+        });
+        console.log("POST", userOrders.length);
         res.status(204).end();
     } catch (error) {
         res.status(400).json({ message: 'Error al intentar eliminar la orden' })

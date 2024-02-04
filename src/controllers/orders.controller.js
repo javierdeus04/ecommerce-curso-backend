@@ -3,12 +3,12 @@ import OrdersService from "../services/orders.service.js";
 import UsersService from "../services/users.service.js";
 import { v4 as uuidv4 } from 'uuid';
 import CartsController from "./carts.controller.js";
+import UserController from "./users.controller.js";
 import ProductsService from "../services/products.service.js";
 
 export default class OrdersController {
-    static getAll(filter = {}, opts = {}) {
-        opts.sort = { createdAt: -1 };
-        return OrdersService.getAll(filter, opts);
+    static getAll(filter = {}) {
+        return OrdersService.getAll(filter);
     }
 
     static async create(data) {

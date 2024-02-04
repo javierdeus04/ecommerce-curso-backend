@@ -19,6 +19,7 @@ const UserSchema = new mongoose.Schema({
         ref: 'Order',
     }
 ], required: false, default: []},
+    tickets: { type: Array },
 }, { timestamps: true });
 
 UserSchema.plugin(mongoosePaginate);

@@ -19,22 +19,8 @@
                 </svg></button></a>
     </li>
 </ul>
-<h1>Confirmacion de Orden</h1>
+<h1>Compra finalizada</h1>
 <article>
-    <ul>
-        <li>Codigo: {{populatedOrder.code}}</li>
-        <li>Fecha de creacion: {{populatedOrder.createdAt}}</li>
-        <li>Productos:
-            <ul>
-                {{#each productsInOrder}}
-                <li>{{this.quantity}} x {{this.product.title}}</li>
-                {{/each}}
-            </ul>
-        </li>
-        <li>Total: ${{populatedOrder.total}}</li>
-    </ul>
-    <button id="purchase">Confirmar compra</button>
-    <a href="/carts/current"><button>Cancelar orden</button></a>
+    Los datos de su compra fueron enviados a {{userDTO.email}}
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-<script type="module" src="/js/confirmOrder.public.js"></script>

@@ -2,6 +2,9 @@ import dotenv from 'dotenv';
 
 dotenv.config()
 
+//process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+
 export default {
     port: process.env.PORT,
     mongodbUri: process.env.MONGODB_URI,
@@ -17,5 +20,5 @@ export default {
         accountSid: process.env.TWILIO_ACCOUNT_SID,
         authToken: process.env.TWILIO_ACCOUNT_TOKEN,
         phoneNumber: process.env.TWILIO_PHONE_NUMBER,
-    },
+    }
 }

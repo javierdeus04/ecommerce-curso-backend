@@ -109,16 +109,6 @@ router.get('/carts/current', passport.authenticate('jwt', { session: false }), a
     }
 })
 
-router.get('/carts/current/purchase', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-        const user = req.user;
-        const ticket = req.finalizedPurchase;
-        res.render('purchase', { title: 'Pedido confirmado', user, ticket })
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-})
-
 router.get('/login', async (req, res) => {
     res.render('login', { title: 'Login' });
 })
@@ -152,13 +142,22 @@ router.get('/users/current/orders', passport.authenticate('jwt', { session: fals
 router.get('/carts/current/order', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         const user = req.user;
-        const userDTO = createUserDTO(user);
-        const userWithOrders = await user.populate('orders')
-        const orders = userWithOrders.orders;
-        const currentOrder = orders[orders.length - 1].toJSON();
-        res.render('confirmOrder', { title: 'Confirmacin de orden', userDTO, currentOrder });
+        const userOrders = await OrdersController.getAll({ user });
+        const currentOrder = userOrders[userOrders.length - 1];
+        const populatedOrder = (await currentOrder.populate('products.product')).toJSON();
+        const productsInOrder = populatedOrder.products;
+        res.render('confirmOrder', { title: 'Confirmacin de orden', populatedOrder, productsInOrder });
     } catch (error) {
+    }
+})
 
+router.get('/current/confirmed-purchase', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const user = req.user;
+        const userDTO = createUserDTO(user);
+        res.render('confirmed-purchase', { title: 'Pedido confirmado', userDTO })
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 })
 
