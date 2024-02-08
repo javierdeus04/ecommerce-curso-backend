@@ -12,9 +12,20 @@ import { createUserDTO } from '../../dao/dto/user.dto.js';
 import ProductsController from '../../controllers/products.controller.js';
 import { tr } from '@faker-js/faker';
 import OrdersController from '../../controllers/orders.controller.js';
+import { logger } from '../../config/logger.js';
 
 
 const router = Router();
+
+router.get('/loggerTest', (req, res) => {
+    req.logger.fatal('Logger req (fatal');
+    req.logger.error('Logger req (error)' );
+    req.logger.warn('Logger req (warning)' );
+    req.logger.info('Logger req (info)' );
+    req.logger.http('Logger req (http)' );
+    req.logger.debug('Logger req (debug)' );
+    res.send('Bienvenido')
+})
 
 router.get('/products', authenticateJWT, async (req, res) => {
     const { limit = 10, page = 1, sort, search, stock } = req.query;
@@ -55,7 +66,7 @@ router.get('/products', authenticateJWT, async (req, res) => {
         }
 
     } catch (error) {
-        console.error(error.message);
+        logger.error(error.message);
         res.status(400).send({ error: error.message });
     }
 });
@@ -80,7 +91,7 @@ router.get('/products/:pid', authenticateJWT, async (req, res) => {
             res.render('productDetail', { title: 'Productos', productObject });
         }
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
@@ -105,6 +116,7 @@ router.get('/carts/current', passport.authenticate('jwt', { session: false }), a
 
         res.render('carts', { title: 'Carrito', productsInCart, totalPrice, quantities });
     } catch (error) {
+        logger.error(error);
         res.status(500).send({ error: error.message });
     }
 })
@@ -135,7 +147,8 @@ router.get('/users/current/orders', passport.authenticate('jwt', { session: fals
         const ordersCompleted = orders.filter(order => order.status === 'completed')
         res.render('orders', { title: 'Lista de ordenes', userDTO, ordersCompleted });
     } catch (error) {
-
+        logger.error(error);
+        res.status(500).send({ error: error.message });
     }
 })
 
@@ -148,6 +161,8 @@ router.get('/carts/current/order', passport.authenticate('jwt', { session: false
         const productsInOrder = populatedOrder.products;
         res.render('confirmOrder', { title: 'Confirmacin de orden', populatedOrder, productsInOrder });
     } catch (error) {
+        logger.error(error);
+        res.status(500).send({ error: error.message });
     }
 })
 
@@ -157,6 +172,7 @@ router.get('/current/confirmed-purchase', passport.authenticate('jwt', { session
         const userDTO = createUserDTO(user);
         res.render('confirmed-purchase', { title: 'Pedido confirmado', userDTO })
     } catch (error) {
+        logger.error(error);
         res.status(500).send({ error: error.message });
     }
 })
@@ -168,7 +184,8 @@ router.get('/users/current/orders/:oid', passport.authenticate('jwt', { session:
         const productsPopulated = (await order.populate('products.product')).toJSON();
         res.render('orderDetail', { title: 'Detalle de orden', productsPopulated });
     } catch (error) {
-
+        logger.error(error);
+        res.status(500).send({ error: error.message });
     }
 })
 

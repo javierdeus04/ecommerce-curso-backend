@@ -5,6 +5,7 @@ import UserController from "./users.controller.js";
 import OrdersController from "./orders.controller.js";
 import OrdersService from "../services/orders.service.js";
 import ProductsController from "./products.controller.js";
+import { logger } from "../config/logger.js";
 
 export default class CartsController {
 
@@ -124,7 +125,8 @@ export default class CartsController {
         }
 
         await CartsService.updateById(currentCartId, { products: refusedProducts })
-    
+        
+        logger.debug('CartsController.cartPurchase() finished successfully')
         return refusedProducts
     }
     

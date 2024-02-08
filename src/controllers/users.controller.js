@@ -2,6 +2,7 @@ import UsersService from "../services/users.service.js";
 import { CustomError } from "../../utils/CustomErrors.js";
 import { generatorProductError } from "../../utils/CauseMessageError.js";
 import EnumsError from "../../utils/EnumsError.js";
+import { logger } from "../config/logger.js";
 
 export default class UserController {
     static getAll(filter = {}) {
@@ -57,8 +58,10 @@ export default class UserController {
     static async updateById(id, data) {
         const existingUser = await UserController.getById(id);
         if (!existingUser) {
+            logger.error('User not found')
             throw new Error('Usuario no encontrado');
         }
+        logger.info(`User successfully updated: ${id}`)
         return UsersService.updateById(id, data);
     }
 

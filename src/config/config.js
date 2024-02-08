@@ -2,10 +2,11 @@ import dotenv from 'dotenv';
 
 dotenv.config()
 
-//process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 
 export default {
+    env: process.env.NODE_ENV || 'development',
     port: process.env.PORT,
     mongodbUri: process.env.MONGODB_URI,
     adminEmail: process.env.ADMIN_EMAIL,

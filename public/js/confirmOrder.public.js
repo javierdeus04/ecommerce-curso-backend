@@ -9,7 +9,8 @@ purchase.addEventListener('click', async () => {
           'Content-Type': 'application/json',
         },
       });
-  
+
+console.log(response);  
       if (!response.ok) {
         throw new Error('Error al intentar procesar compra');
       } else {

@@ -16,6 +16,7 @@ import usersRouter from './routers/api/users.router.js';
 import ordersRouter from './routers/api/orders.router.js'
 import { init as initPassport} from './config/passport.config.js';
 import { errorHandlerMiddleware } from './middlewares/error-handler-middleware.js';
+import { addLogger, logger } from './config/logger.js';
 
 
 const app = express();
@@ -29,6 +30,7 @@ const corsOptions = {
 const COOKIE_SECRET = 'mh3|253j*e%l=>w5t}(TD7WBYPb1m_{Z'
 
 app.use(cors(corsOptions));
+app.use(addLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
@@ -60,7 +62,7 @@ app.use(errorHandlerMiddleware)
 
 app.use((error, req, res, next) => {
     const message = `Ha ocurrido un error desconocido: ${error.message}`;
-    console.log(message);
+    logger.error(message);
     res.status(500).json({ message }) 
 })
 

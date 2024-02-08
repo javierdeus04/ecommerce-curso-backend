@@ -6,6 +6,7 @@ import UsersService from "../services/users.service.js";
 import CartsController from './carts.controller.js';
 import OrdersController from './orders.controller.js';
 import UserController from './users.controller.js';
+import { logger } from '../config/logger.js';
 
 export default class TicketsController {
     static getAll(filter = {}) {
@@ -16,19 +17,28 @@ export default class TicketsController {
 
         const code = uuidv4();
         const currentUser = await UsersService.getById(data);
+
         const userId = currentUser._id;
 
         const populateOrders = await currentUser.populate('orders');
         const userOrders = populateOrders.orders;
-        const pendingOrder = userOrders.find(order => order.status === 'pending');
-        const pendingOrderId = pendingOrder._id;
-        const currentProducts = pendingOrder.products;
+        const pendingOrders = userOrders.filter(order => order.status === 'pending');
+
+        if (!pendingOrders) {
+            logger.error('There are no pending orders')
+            throw new Error('No existen ordenes pendientes');
+        }
+
+        const lastPendingOrder = pendingOrders[pendingOrders.length - 1]
+        const pendingOrderId = lastPendingOrder._id;
+        const currentProducts = lastPendingOrder.products;
 
         if (!currentProducts || currentProducts.length === 0) {
+            logger.error('Products no available')
             throw new Error('Productos no disponibles');
         } else {
-            const amount = pendingOrder.total;
-            const userEmail = data.email;
+            const amount = lastPendingOrder.total;
+            const userEmail = currentUser.email;
 
             const newTicket = {
                 code,
@@ -45,6 +55,8 @@ export default class TicketsController {
 
             const ticketCreated = await TicketsService.create(newTicket);
 
+            logger.info(`Ticket created successfully: ${ticketCreated._id}`)
+            logger.debug('TicketsController.create() finished successfully')
             return { updatedOrder, ticketCreated }
         }
     }

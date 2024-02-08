@@ -1,3 +1,5 @@
+import { devLogger } from "../../../src/config/logger";
+
 const logoutButton = document.getElementById('logout-button');
 
 logoutButton.addEventListener('click', async () => {
@@ -11,6 +13,7 @@ logoutButton.addEventListener('click', async () => {
         });
 
         if (!response.ok) {
+            devLogger.debug('Error desde devLogger')
             throw new Error('Error al intentar cerrar sesión');
         } else {
             window.location.href = '/login';

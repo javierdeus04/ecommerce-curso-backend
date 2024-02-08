@@ -3,6 +3,8 @@ import UserModel from '../../dao/models/user.model.js';
 import { createHash, isValidPassword, generateToken, verifyToken, isAdmin } from '../../../utils/utils.js';
 import passport from 'passport';
 
+import { logger } from '../../config/logger.js';
+
 
 const router = Router();
 
@@ -13,7 +15,8 @@ router.post('/auth/register', passport.authenticate('register', { session: false
 router.post('/auth/login', passport.authenticate('login', { session: false, failureRedirect: '/login' }), (req, res) => {
     const { user, token } = req.user;
     res.cookie('access_token', token, { maxAge: 9000 * 60 * 60, httpOnly: true, signed: true });
-    res.status(200).json({ message: `Sesion iniciada con exito. Bienvenido ${user.email}, su rol es de ${user.role}` });
+    logger.info(`Session started successfully. User: ${user.email} - Role: ${user.role}`)
+    res.status(200).json({ message: `Sesion iniciada con exito. Usuario: ${user.email} - Rol: ${user.role}` });
 });
 
 router.post('/auth/logout', (req, res) => {
