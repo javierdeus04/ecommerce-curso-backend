@@ -7,6 +7,7 @@ import { faker } from '@faker-js/faker';
 import passport from 'passport';
 
 import config from '../src/config/config.js';
+import { logger } from '../src/config/logger.js';
 
 export const JWT_SECRET = 'u^f.Tl6o78a5bkGXF8~y!KTe2l1:XEcE'
 
@@ -18,20 +19,20 @@ export const generateToken = (user) => {
         email: user.email,
         role: user.role,
     }
-    return JWT.sign(payload, JWT_SECRET, { expiresIn: '15m' })
+    return JWT.sign(payload, JWT_SECRET, { expiresIn: '60m' })
 }
 
-export const verifyToken = (token) => {
+/* export const verifyToken = (token) => {
     return new Promise((resolve) => {
         JWT.verify(token, JWT_SECRET, (error, payload) => {
             if (error) {
+                logger.error('Token does not match')
                 return resolve(false)
             }
             resolve(payload);
         })
     })
-
-}
+} */
 
 const __filename = url.fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -81,6 +82,8 @@ export const authenticateJWT = (req, res, next) => {
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (user) {
             req.user = user;
+        } else {
+            logger.warn('User not verified')
         }
         next();
     })(req, res, next);
@@ -88,17 +91,21 @@ export const authenticateJWT = (req, res, next) => {
 
 export const isAdmin = (req, res, next) => {passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
+            logger.error('Error at isAdmin middleware')
             return next(err);
         }
 
         if (!user) {
+            logger.error('Forbidenn access. Unauthorized user')
             return res.status(401).json({ message: 'No autorizado' });
         }
 
         if (user.role === 'admin') {
+            logger.info('Access granted. Authorized admin user')
             return next();
         } else {
-            return res.status(403).json({ message: 'Acceso prohibido. El usuario no es un admin.' });
+            logger.error('Forbidenn access. Unauthorized user')
+            return res.status(403).json({ message: 'Acceso prohibido. Usuario no autorizado.' });
         }
     })(req, res, next);
 };

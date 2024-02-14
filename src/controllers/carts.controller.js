@@ -1,11 +1,11 @@
 import CartsService from "../services/carts.service.js";
 import ProductsService from "../services/products.service.js"
 import UsersService from "../services/users.service.js";
-import UserController from "./users.controller.js";
-import OrdersController from "./orders.controller.js";
-import OrdersService from "../services/orders.service.js";
-import ProductsController from "./products.controller.js";
 import { logger } from "../config/logger.js";
+import { generatorProductIdError, generatorCartIdError } from "../../utils/CauseMessageError.js";
+import { Types } from "mongoose";
+import { CustomError } from "../../utils/CustomErrors.js";
+import EnumsError from "../../utils/EnumsError.js";
 
 export default class CartsController {
 
@@ -16,26 +16,49 @@ export default class CartsController {
     static create(data) {
         return CartsService.create(data);
     };
-    
+
     static async getById(id) {
         try {
+            if (!Types.ObjectId.isValid(id)) {
+                CustomError.create({
+                    name: 'Invalid cart id format',
+                    cause: generatorProductIdError(id),
+                    message: 'Error al intentar obtener el carrito por su id',
+                    code: EnumsError.INVALID_PARAMS_ERROR
+                });
+            }
             const cart = await CartsService.getById(id)
+            logger.debug('CartsService.getById() finished successfully')
             if (!cart) {
+                logger.error('Cart not found')
                 throw new Error('Carrito no encontrado');
             }
             return cart;
         } catch (error) {
-            throw new Error('Error al intenar buscar el carrito: ' + error.message);
+            logger.error('Error when trying to search for the cart');
+            throw new Error('Error al intenar buscar el carrito');
         }
     };
 
     static async addProductToCart(cid, pid) {
         try {
             const existingCart = await CartsService.getById(cid);
+            logger.debug('CartsService.getById() finished successfully')
+
+            if (!Types.ObjectId.isValid(pid)) {
+                CustomError.create({
+                    name: 'Invalid product id format',
+                    cause: generatorProductIdError(pid),
+                    message: 'Error al intentar obtener el producto por su id',
+                    code: EnumsError.INVALID_PARAMS_ERROR
+                });
+            }
 
             if (!existingCart) {
                 const newCartData = { products: [{ product: pid }] };
-                return CartsService.create(newCartData);
+                const newCart = await CartsService.create(newCartData);
+                logger.debug('CartsService.create() finished successfully')
+                return newCart
             }
             const existingProduct = existingCart.products.find(
                 (item) => item.product._id.toString() === pid.toString()
@@ -49,38 +72,81 @@ export default class CartsController {
 
             return updatedCart.populate('products.product');
         } catch (error) {
-            throw new Error('Error al agregar producto al carrito: ' + error.message);
+            logger.error(error.message);
+            logger.error('Error when trying to add product to cart')
+            throw new Error('Error al intentar agregar producto al carrito: ' + error.message);
         }
     }
 
     static async deleteProductById(cid, pid) {
-        const cart = await CartsService.getById(cid);        
+        const cart = await CartsService.getById(cid);
+        logger.debug('CartsService.getById() finished successfully')
         if (!cart) {
+            logger.error('Cart not found')
             throw new Error('Carrito no encontrado');
         }
+        if (!Types.ObjectId.isValid(pid)) {
+            CustomError.create({
+                name: 'Invalid product id format',
+                cause: generatorProductIdError(pid),
+                message: 'Error al intentar obtener el producto por su id',
+                code: EnumsError.INVALID_PARAMS_ERROR
+            });
+        }
+        const productToDelete = await ProductsService.getById(pid);
+        logger.debug('ProductsService.getById() finished successfully')
+        if (!productToDelete) {
+            logger.error('Product not found')
+            throw new Error('Producto no encontrado');
+        }
+
+        const isProductInCart = cart.products.some(product => product.product.toString() === pid);
+        if (!isProductInCart) {
+            logger.error('Product not found in cart');
+            throw new Error('Producto no encontrado en el carrito');
+        }
+
         const updatedProducts = cart.products.filter(product => product.product.toString() !== pid);
         return CartsService.updateById(cid, { products: updatedProducts });
     }
 
     static async updateOneProductQuantity(cid, pid, quantity) {
         try {
-            const filter = { _id: cid, "products.product": pid };
-            const update = { $set: { "products.$.quantity": quantity } };
-            const options = { new: true };
-            const cartToUpdate = await CartsService.getById(cid);
-            const updatedCart = await cartToUpdate.findOneAndUpdate(filter, update, options).populate('products.product');
-            if (!updatedCart) {
-                throw new Error('No se encontró el carrito o el producto en el carrito');
+            const cart = await CartsService.getById(cid);
+            logger.debug('CartsService.getById() finished successfully');
+
+            if (!cart) {
+                logger.error('Cart not found');
+                throw new Error('Carrito no encontrado');
             }
-            return updatedCart;
+
+            const productIndex = cart.products.findIndex(product => product.product.toString() === pid);
+
+            if (productIndex === -1) {
+                logger.error('Product not found in cart');
+                throw new Error('Producto no encontrado en el carrito');
+            }
+
+            let newQuantity = quantity;
+            if (quantity <= 1) {
+                newQuantity = 1;
+            }
+
+            cart.products[productIndex].quantity = newQuantity;
+
+            await cart.save();
+            return cart;
         } catch (error) {
-            throw new Error('Error al actualizar la cantidad del producto en el carrito: ' + error.message);
+            logger.error('Error updating the quantity of the product in the cart')
+            throw new Error('Error al actualizar la cantidad del producto en el carrito');
         }
     }
 
     static async deleteAllProductsFromCart(id) {
-        const cart = await CartsService.getById(id);        
+        const cart = await CartsService.getById(id)
+        logger.debug('CartsService.getById() finished successfully')
         if (!cart) {
+            logger.error('Cart not found')
             throw new Error('Carrito no encontrado');
         }
         return CartsService.updateById(id, { products: [] });
@@ -89,6 +155,7 @@ export default class CartsController {
     static async cartPurchase(id) {
 
         const userResult = await UsersService.getById(id);
+        logger.debug('UsersService.getById() finished successfully');
         const currentUserWithCart = await userResult.populate('cart');
         const currentCart = currentUserWithCart.cart;
         const currentCartId = currentCart._id;
@@ -96,21 +163,22 @@ export default class CartsController {
         const productsInCart = itemsInCart.products;
 
         const allProducts = await ProductsService.getAll();
+        logger.debug('ProductsService.getAll() finished successfully');
         const stockProducts = allProducts.filter(p => p.stock !== 0);
 
         const refusedProducts = [];
-    
+
         for (const cartProduct of productsInCart) {
             const productsWithStockInCart = stockProducts.find(stockProduct => stockProduct._id.toString() === cartProduct.product._id.toString());
 
             if (productsWithStockInCart) {
                 const availableStock = productsWithStockInCart.stock;
                 const quantityInCart = cartProduct.quantity;
-    
+
                 if (availableStock >= quantityInCart) {
                     productsWithStockInCart.stock -= quantityInCart;
                     await productsWithStockInCart.save();
-                }else {
+                } else {
                     refusedProducts.push({
                         product: cartProduct.product._id,
                         quantity: 1,
@@ -125,11 +193,11 @@ export default class CartsController {
         }
 
         await CartsService.updateById(currentCartId, { products: refusedProducts })
-        
-        logger.debug('CartsController.cartPurchase() finished successfully')
+        logger.debug('CartsService.updateById() finished successfully')
+
         return refusedProducts
     }
-    
+
 }
 
-    
+

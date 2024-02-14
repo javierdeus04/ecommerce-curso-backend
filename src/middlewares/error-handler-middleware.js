@@ -1,7 +1,8 @@
 import EnumsError from "../../utils/EnumsError.js";
+import { logger } from "../config/logger.js";
 
 export const errorHandlerMiddleware = (error, req, res, next) => {
-    console.error(error.cause || error.message);
+    logger.error(error.cause || error.message);
     switch (error.code) {
         case EnumsError.BAD_REQUEST_ERROR:
         case EnumsError.INVALID_PARAMS_ERROR:

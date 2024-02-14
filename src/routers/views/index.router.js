@@ -19,11 +19,11 @@ const router = Router();
 
 router.get('/loggerTest', (req, res) => {
     req.logger.fatal('Logger req (fatal');
-    req.logger.error('Logger req (error)' );
-    req.logger.warn('Logger req (warning)' );
-    req.logger.info('Logger req (info)' );
-    req.logger.http('Logger req (http)' );
-    req.logger.debug('Logger req (debug)' );
+    req.logger.error('Logger req (error)');
+    req.logger.warn('Logger req (warning)');
+    req.logger.info('Logger req (info)');
+    req.logger.http('Logger req (http)');
+    req.logger.debug('Logger req (debug)');
     res.send('Bienvenido')
 })
 
@@ -46,6 +46,7 @@ router.get('/products', authenticateJWT, async (req, res) => {
 
         if (page > products.totalPages) {
             const errorMessage = new Error(`La página solicitada: ${page} no existe.`);
+            logger.error('Page not found')
             res.render('error', { title: 'Error', errorMessage, cid });
         }
 
@@ -66,7 +67,7 @@ router.get('/products', authenticateJWT, async (req, res) => {
         }
 
     } catch (error) {
-        logger.error(error.message);
+        logger.error('Index Router Error. Method: GET. Path: /products', error.message);
         res.status(400).send({ error: error.message });
     }
 });
@@ -91,8 +92,8 @@ router.get('/products/:pid', authenticateJWT, async (req, res) => {
             res.render('productDetail', { title: 'Productos', productObject });
         }
     } catch (error) {
-        logger.error(error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        logger.error('Index Router Error. Method: GET. Path: /products/:pid', error.message);
+        res.status(400).send({ error: error.message });
     }
 });
 
@@ -116,8 +117,8 @@ router.get('/carts/current', passport.authenticate('jwt', { session: false }), a
 
         res.render('carts', { title: 'Carrito', productsInCart, totalPrice, quantities });
     } catch (error) {
-        logger.error(error);
-        res.status(500).send({ error: error.message });
+        logger.error('Index Router Error. Method: GET. Path: /carts/current', error.message);
+        res.status(400).send({ error: error.message });
     }
 })
 
@@ -126,16 +127,22 @@ router.get('/login', async (req, res) => {
 })
 
 router.get('/users/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    if (!req.user) {
-        return res.redirect('/login')
+    try {
+        if (!req.user) {
+            logger.warn('Unregistered user')
+            return res.redirect('/login')
+        }
+        if (req.user.role === "admin") {
+            req.user = admin;
+        }
+        if (req.user.role === "user") {
+            req.user = req.user.toJSON();
+        }
+        res.render('profile', { title: 'Perfil de usuario', user: req.user });
+    } catch (error) {
+        logger.error('Index Router Error. Method: GET. Path: /users/current', error.message);
+        res.status(400).send({ error: error.message });        
     }
-    if (req.user.role === "admin") {
-        req.user = admin;
-    }
-    if (req.user.role === "user") {
-        req.user = req.user.toJSON();
-    }
-    res.render('profile', { title: 'Perfil de usuario', user: req.user });
 })
 
 router.get('/users/current/orders', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -147,8 +154,8 @@ router.get('/users/current/orders', passport.authenticate('jwt', { session: fals
         const ordersCompleted = orders.filter(order => order.status === 'completed')
         res.render('orders', { title: 'Lista de ordenes', userDTO, ordersCompleted });
     } catch (error) {
-        logger.error(error);
-        res.status(500).send({ error: error.message });
+        logger.error('Index Router Error. Method: GET. Path: /users/current/orders', error.message);
+        res.status(400).send({ error: error.message });       
     }
 })
 
@@ -161,8 +168,8 @@ router.get('/carts/current/order', passport.authenticate('jwt', { session: false
         const productsInOrder = populatedOrder.products;
         res.render('confirmOrder', { title: 'Confirmacin de orden', populatedOrder, productsInOrder });
     } catch (error) {
-        logger.error(error);
-        res.status(500).send({ error: error.message });
+        logger.error('Index Router Error. Method: GET. Path: /carts/current/order', error.message);
+        res.status(400).send({ error: error.message });       
     }
 })
 
@@ -172,8 +179,8 @@ router.get('/current/confirmed-purchase', passport.authenticate('jwt', { session
         const userDTO = createUserDTO(user);
         res.render('confirmed-purchase', { title: 'Pedido confirmado', userDTO })
     } catch (error) {
-        logger.error(error);
-        res.status(500).send({ error: error.message });
+        logger.error('Index Router Error. Method: GET. Path: /current/confirmed-purchase', error.message);
+        res.status(400).send({ error: error.message });       
     }
 })
 
@@ -184,8 +191,8 @@ router.get('/users/current/orders/:oid', passport.authenticate('jwt', { session:
         const productsPopulated = (await order.populate('products.product')).toJSON();
         res.render('orderDetail', { title: 'Detalle de orden', productsPopulated });
     } catch (error) {
-        logger.error(error);
-        res.status(500).send({ error: error.message });
+        logger.error('Index Router Error. Method: GET. Path: /users/current/orders/:oid', error.message);
+        res.status(400).send({ error: error.message });       
     }
 })
 
@@ -196,10 +203,9 @@ router.get('/register', (req, res) => {
 
 router.get('/recovery-password', (req, res) => {
     res.render('recovery-password', { title: 'Recuperacion de contraseña' });
-
 })
 
-router.get('/mail', async (req, res) => {
+/* router.get('/mail', async (req, res) => {
     const emailService = EmailService.getInstance();
     const result = await emailService.sendEmail(
         'javidiuf@hotmail.com',
@@ -217,12 +223,17 @@ router.get('/mail', async (req, res) => {
         ]
     )
     res.status(200).json(result);
-})
+}) */
 
 router.get('/send-otp', async (req, res) => {
-    const twilioService = TwilioService.getInstance();
-    const response = await twilioService.sendSMS('+59899909068', `Su codigo de verificacion es hola`)
-    res.status(200).json(response);
+    try {
+        const twilioService = TwilioService.getInstance();
+        const response = await twilioService.sendSMS('+59899909068', `Su codigo de verificacion es hola`)
+        res.status(200).json(response);
+    } catch (error) {
+        logger.error('Index Router Error. Method: GET. Path: /send-opt', error.message);
+        res.status(400).send({ error: error.message });       
+    }
 })
 
 router.get('/mockingproducts', async (req, res) => {

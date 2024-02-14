@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 
 import MessageSchema from './dao/models/message.model.js';
+import { logger } from './config/logger.js';
 
 export const initSocket = async (httpServer) => {
     const socketServer = new Server(httpServer);
@@ -8,7 +9,7 @@ export const initSocket = async (httpServer) => {
     try {
 
         socketServer.on('connection', (socketClient) => {
-            console.log(`Nuevo cliente conectado: ${socketClient.id}`);
+            logger.info(`Nuevo cliente conectado: ${socketClient.id}`);
 
             MessageSchema.find().then((messages) => {
                 socketClient.emit('messages', messages)
@@ -25,6 +26,6 @@ export const initSocket = async (httpServer) => {
             });
         });
     } catch (error) {
-        console.error('Error al obtener los productos:', error);
+        logger.error('Error al obtener los mensajes:', error);
     }
 }

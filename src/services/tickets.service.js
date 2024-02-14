@@ -9,8 +9,8 @@ export default class TicketsService {
         return TicketDao.create(data)
     }
 
-    static async getById(id) {
-        const result = await TicketDao.getAll({ _id: id });
+    static async getByCode(code) {
+        const result = await TicketDao.getAll({ code: code });
         return result[0]
     }
 
@@ -18,7 +18,7 @@ export default class TicketsService {
         return TicketDao.updateById(id, data);
     }
 
-    static deleteById(id) {
-        return TicketDao.deleteById(id);
+    static deleteByCode(code) {
+        return TicketDao.deleteByCode(code);
     }
 }

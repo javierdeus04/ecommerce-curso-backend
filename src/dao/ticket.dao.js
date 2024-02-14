@@ -13,7 +13,7 @@ export default class TicketDaoMongoDB {
         return TicketModel.updateOne({ _id: uid }, { $set: data })
     }
 
-    static deleteById(uid) {
-        return TicketModel.deleteOne({ _id: uid })
+    static deleteByCode(tc) {
+        return TicketModel.deleteOne({ code: tc })
     }
 }

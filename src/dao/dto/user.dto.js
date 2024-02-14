@@ -1,5 +1,9 @@
+import { logger } from "../../config/logger.js"
+
 export const createUserDTO = (users) => {
+
     if (!users) {
+        logger.error('Invalid user data');
         throw new Error('Datos de usuario no válidos');
     };
     

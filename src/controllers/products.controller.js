@@ -3,6 +3,7 @@ import { CustomError } from "../../utils/CustomErrors.js";
 import { generatorProductError, generatorProductIdError } from "../../utils/CauseMessageError.js";
 import EnumsError from "../../utils/EnumsError.js";
 import { Types  } from "mongoose";
+import { logger } from "../config/logger.js";
 
 export default class ProductsController {
     static getAll() {
@@ -59,7 +60,7 @@ export default class ProductsController {
     static async getById(id) {
         if (!Types.ObjectId.isValid(id)) {
             CustomError.create({
-                name: 'Invalid user id format',
+                name: 'Invalid product id format',
                 cause: generatorProductIdError(id),
                 message: 'Error al intentar obtener el producto por su id',
                 code: EnumsError.INVALID_PARAMS_ERROR
@@ -67,18 +68,44 @@ export default class ProductsController {
         }
         const product = await ProductsService.getById(id);
         if (!product) {
+            logger.error('Product not found')
             throw new Error(`Producto ${id} no encontrado`)
         }
         return product
     }
 
     static async updateById(id, data) {
-        await ProductsController.getById(id)
+        if (!Types.ObjectId.isValid(id)) {
+            CustomError.create({
+                name: 'Invalid product id format',
+                cause: generatorProductIdError(id),
+                message: 'Error al intentar obtener el producto por su id',
+                code: EnumsError.INVALID_PARAMS_ERROR
+            });
+        }
+        const existingProduct = await ProductsService.getById(id)
+        if (!existingProduct) {
+            logger.error("Product not found")
+            throw new Error(`Producto ${id} no encontrado`)
+        }
+        logger.debug('ProductsService.getById() finished successfully')
         return ProductsService.updateById(id, data);
     }
 
     static async deleteById(id) {
-        await ProductsController.getById(id)
+        if (!Types.ObjectId.isValid(id)) {
+            CustomError.create({
+                name: 'Invalid user id format',
+                cause: generatorProductIdError(id),
+                message: 'Error al intentar obtener el producto por su id',
+                code: EnumsError.INVALID_PARAMS_ERROR
+            });
+        }
+        const existingProduct = await ProductsService.getById(id)
+        if (!existingProduct) {
+            logger.error("Product not found")
+            throw new Error(`Producto ${id} no encontrado`)
+        }
         return ProductsService.deleteById(id);
     }
 }

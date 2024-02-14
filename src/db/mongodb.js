@@ -10,6 +10,6 @@ export const initMongodb = async () => {
         await mongoose.connect(URI);
         logger.info('Database connected successfully')
     } catch (error) {
-        console.error('Ha ocuurido un error al intentar conectarse a la base de datos', error.message)
+        logger.error('An error occurred while trying to connect to the database', error.message)
     };
 };

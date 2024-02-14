@@ -27,3 +27,50 @@ export const generatorUserError = (data) => {
         -age: ${data.age}
         `;
 }
+
+export const generatorUserIdError = (id) => {
+    return `Identificador de usuario no valido.
+    ID recibido: ${id}
+    `;
+}
+
+export const generatorTicketError = (data) => {
+    return `Todos los campos son requeridos y deben ser validos.
+    Lista de campos recibidos en la solicitud:
+        -code: ${data.code}
+        -amount: ${data.amount} 
+        -purchaser: ${data.email}
+        `;
+}
+
+export const generatorTicketIdError = (id) => {
+    return `Identificador de ticket no valido.
+    ID recibido: ${id}
+    `;
+}
+
+export const generatorOrderError = (data) => {
+    return `Todos los campos son requeridos y deben ser validos.
+    Lista de campos recibidos en la solicitud:
+        -code: ${data.code}
+        -user: ${data.amount} 
+        -products: ${data.email}
+        -total: ${data.total}
+        -status: ${data.status}
+        `;
+}
+
+export const generatorOrderIdError = (id) => {
+    return `Identificador de orden no valido.
+    ID recibido: ${id}
+    `;
+}
+
+export const generatorCartIdError = (id) => {
+    return `Identificador de carrito no valido.
+    ID recibido: ${id}
+    `;
+}
+
+
+

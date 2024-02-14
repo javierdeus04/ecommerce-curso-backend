@@ -2,22 +2,22 @@ const logoutButton = document.getElementById('logout-button');
 
 logoutButton.addEventListener('click', async () => {
 
-  try {
-    const response = await fetch(`/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+        const response = await fetch(`/auth/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-    if (!response.ok) {
-      throw new Error('Error al intentar cerrar sesión');
-    } else {
-      window.location.href = '/login';
+        if (!response.ok) {
+            throw new Error('Error al intentar cerrar sesión');
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error(error.message);
     }
-  } catch (error) {
-    console.error(error.message);
-  }
 })
 
 const deleteButtons = document.querySelectorAll('.delete-button');
@@ -126,3 +126,74 @@ createOrder.addEventListener('click', () => {
         }
     });
 })
+
+const decreaseProductButtons = document.querySelectorAll('.decrease-product-button');
+
+decreaseProductButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+        const pid = button.dataset.productId;
+        try {
+            const response = await fetch(`/carts/current/product/${pid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'decrease' })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar el producto del carrito');
+            }
+            const data = await response.json();
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Producto eliminado correctamente",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            window.location.href = `/carts/current`
+            return data;
+        } catch (error) {
+            console.error(error.message);
+        }
+    })
+})
+
+const increaseProductButtons = document.querySelectorAll('.increase-product-button');
+
+increaseProductButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+        const pid = button.dataset.productId;
+        try {
+            const response = await fetch(`/carts/current/product/${pid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'increase' })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al agregar el producto del carrito');
+            }
+            const data = await response.json();
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Producto agregado correctamente",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            window.location.href = `/carts/current`
+            return data;
+        } catch (error) {
+            console.error(error.message);
+        }
+    })
+})
+
+
+
+
+

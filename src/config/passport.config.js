@@ -2,14 +2,14 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
-import UserService from "../services/users.service.js";
-import CartsService from "../services/carts.service.js";
 import { createHash, isValidPassword, JWT_SECRET, generateToken, admin } from "../../utils/utils.js";
-import config from './config.js';
 import UserController from "../controllers/users.controller.js";
 import { CustomError } from "../../utils/CustomErrors.js";
 import { generatorUserError } from "../../utils/CauseMessageError.js";
 import EnumsError from "../../utils/EnumsError.js";
+import { logger } from "./logger.js";
+import CartsController from "../controllers/carts.controller.js";
+import session from 'express-session';
 
 const cookieExtractor = (req) => {
     let token = null;
@@ -32,26 +32,29 @@ export const init = () => {
     
             if (payload.id) {
                 user = await UserController.getById(payload.id);
-      
+                logger.debug('UserController.getById() finished successfully')
             } else if (payload.email === admin.email) {
                 user = admin;
             } else {
                 user = { role: 'anonymous' };
-                console.log('iuser', user);
             }
     
             if (!user) {
+                logger.error("User not found")
                 return done(null, false, { message: 'Usuario no encontrado' });
             }
     
             if (user._id && !user.cart) {
-                const newCart = await CartsService.create({ products: [] });
+                const newCart = await CartsController.create({ products: [] });
+                logger.debug('CartsController.create() finished successfully')
                 user.cart = newCart;
                 await user.save();
             }
-    
+
+            logger.info('User successfully authenticated');    
             return done(null, user);
         } catch (error) {
+            logger.error(error.message)
             return done(error);
         }
     }));
@@ -87,10 +90,13 @@ export const init = () => {
                 message: 'Error al crear un nuevo usuario',
                 code: EnumsError.BAD_REQUEST_ERROR,
             })
+            logger.warn("All fields are required")
         }
-        const result = await UserService.getAll({ email })
+        const result = await UserController.getAll({ email })
+        logger.debug('UserController.getAll() finished successfully')
         let user = result[0]
         if (user) {
+            logger.error(`User already exists: ${user._id}`)
             return done(new Error(`El usuario ${email} ya existe`))
         }
         user = await UserController.create({
@@ -100,30 +106,34 @@ export const init = () => {
             password: createHash(password),
             age,
         });
+        logger.debug('UserController.create() finished successfully')
         done(null, user);
     }));
 
     passport.use('login', new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
 
         if (!email || !password) {
+            logger.warn("All fields are required")
             return done(new Error('Todos los campos requeridos'));
         }
 
         let user;
 
-        const result = await UserService.getAll({ email });
+        const result = await UserController.getAll({ email });
+        logger.debug('UserController.getAll() finished successfully')
 
         if(!result || result.length === 0) {
             if(email === admin.email && password === admin.password) {
                 user = admin;
             } else {
+                logger.error("Invalid email or password")
                 return done(new Error('Correo o contraseña invalidos'));
             }
         } else {
-            user = result[0]
-    
+            user = result[0]    
             const isNotValidPass = !isValidPassword(password, user);
             if (isNotValidPass) {
+                logger.error("Invalid email or password")
                 return done(new Error('Correo o contraseña invalidos'));
             }
         } 
@@ -135,12 +145,15 @@ export const init = () => {
 
 
     passport.use('recovery-password', new LocalStrategy({ usernameField: 'email' }, async (email, password, _id, done) => {
-        const user = await UserService.getAll({ email });
+        const user = await UserController.getAll({ email });
+        logger.debug('UserController.getAll() finished successfully')
         if (!user) {
-            return done(null, false, { message: 'Correo o contraseña invalidos' });
+            logger.error("Unregistered user")
+            return done(null, false, { message: 'Uusario no registrado' });
         }
         user.password = createHash(password);
-        await UserService.updateById(_id, user);
+        await UserController.updateById(_id, user);
+        logger.debug('UserController.updateById() finished successfully')
         return done(null, user);
     }));
 
@@ -151,18 +164,35 @@ export const init = () => {
     }
     passport.use('github', new GithubStrategy(githuboptions, async (accessToken, refreshToken, profile, done) => {
         const email = profile._json.email;
-        let user = await UserService.getAll({ email });
+        let user = await UserController.getAll({ email });
+        logger.debug('UserController.getAll() finished successfully')
         if (user) {
-            return done(null, user)
+            return done(null, user._id)
         }
         user = {
             first_name: profile._json.name,
             last_name: '',
             email,
             password: '',
-            age: 32
+            age: ''
         };
-        const newUser = await UserService.create(user);
-        done(null, newUser);
+        const newUser = await UserController.create(user);
+        logger.debug('UserController.create() finished successfully')
+        done(null, newUser._id);
     }))
+
+    passport.serializeUser((user, done) => {
+        done(null, user._id);
+    });
+    
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await UserController.getById(id);
+            logger.debug('UserController.getById() finished successfully')
+            done(null, user);
+        } catch (error) {
+            logger.error(error.message)
+            done(error);
+        }
+    });
 }
