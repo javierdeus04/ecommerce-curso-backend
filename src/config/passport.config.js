@@ -9,8 +9,7 @@ import { generatorUserError } from "../../utils/CauseMessageError.js";
 import EnumsError from "../../utils/EnumsError.js";
 import { logger } from "./logger.js";
 import CartsController from "../controllers/carts.controller.js";
-import session from 'express-session';
-
+ 
 const cookieExtractor = (req) => {
     let token = null;
     if (req && req.signedCookies) {
@@ -142,7 +141,6 @@ export const init = () => {
         done(null, { user, token });
     }
     ));
-
 
     passport.use('recovery-password', new LocalStrategy({ usernameField: 'email' }, async (email, password, _id, done) => {
         const user = await UserController.getAll({ email });

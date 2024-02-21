@@ -8,7 +8,12 @@ import { Types } from "mongoose";
 
 export default class UserController {
     static getAll(filter = {}) {
-        return UsersService.getAll(filter);
+        const result = UsersService.getAll(filter);
+        if (!result) {
+            logger.error('User/s not found');
+            throw new Error('Usuario/s no encontrado/s')
+        }
+        return result
     }
 
     static async create(data) {

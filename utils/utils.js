@@ -11,28 +11,29 @@ import { logger } from '../src/config/logger.js';
 
 export const JWT_SECRET = 'u^f.Tl6o78a5bkGXF8~y!KTe2l1:XEcE'
 
-export const generateToken = (user) => {
+export const generateToken = (user, type = 'auth') => {
     const payload = {
         id: user._id,
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
         role: user.role,
+        type
     }
-    return JWT.sign(payload, JWT_SECRET, { expiresIn: '60m' })
+    return JWT.sign(payload, JWT_SECRET, { expiresIn: '1h' })
 }
 
-/* export const verifyToken = (token) => {
-    return new Promise((resolve) => {
+export const verifyToken = (token) => {
+    return new Promise((resolve, reject) => {
         JWT.verify(token, JWT_SECRET, (error, payload) => {
             if (error) {
                 logger.error('Token does not match')
-                return resolve(false)
+                return reject(error);
             }
             resolve(payload);
         })
     })
-} */
+}
 
 const __filename = url.fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);

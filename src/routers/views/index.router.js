@@ -201,29 +201,18 @@ router.get('/register', (req, res) => {
     res.render('register', { title: 'Registro de nuevo usuario' });
 })
 
+router.get('/new-password', (req, res) => {
+    const { token } = req.query;
+    res.render('new-password', { title: 'Nueva contraseña', token });
+})
+
 router.get('/recovery-password', (req, res) => {
     res.render('recovery-password', { title: 'Recuperacion de contraseña' });
 })
 
-/* router.get('/mail', async (req, res) => {
-    const emailService = EmailService.getInstance();
-    const result = await emailService.sendEmail(
-        'javidiuf@hotmail.com',
-        'Mail desde el servidor',
-        `<div> 
-            <h1>Hola</h1> 
-            <img src="cid:tori" alt="Hello">
-        </div>`,
-        [
-            {
-                filename: 'tori.jpg',
-                path: path.join(__dirname, './images/tori.jpg'),
-                cid: 'tori'
-            }
-        ]
-    )
-    res.status(200).json(result);
-}) */
+router.get('/recovery-password-mail-confirmation', (req, res) => {
+    res.render('recovery-password-mail-confirmation')
+})
 
 router.get('/send-otp', async (req, res) => {
     try {
@@ -243,6 +232,8 @@ router.get('/mockingproducts', async (req, res) => {
     }
     res.status(200).json(products);
 })
+
+
 
 
 export default router;
