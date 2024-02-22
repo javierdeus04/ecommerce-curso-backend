@@ -2,7 +2,7 @@ import CartsService from "../services/carts.service.js";
 import ProductsService from "../services/products.service.js"
 import UsersService from "../services/users.service.js";
 import { logger } from "../config/logger.js";
-import { generatorProductIdError, generatorCartIdError } from "../../utils/CauseMessageError.js";
+import { generatorProductIdError, generatorUserIdError } from "../../utils/CauseMessageError.js";
 import { Types } from "mongoose";
 import { CustomError } from "../../utils/CustomErrors.js";
 import EnumsError from "../../utils/EnumsError.js";
@@ -40,8 +40,25 @@ export default class CartsController {
         }
     };
 
-    static async addProductToCart(cid, pid) {
+    static async addProductToCart(uid, cid, pid) {
         try {
+            if (!Types.ObjectId.isValid(uid)) {
+                CustomError.create({
+                    name: 'Invalid user id format',
+                    cause: generatorUserIdError(uid),
+                    message: 'Error al intentar obtener el uusario por su id',
+                    code: EnumsError.INVALID_PARAMS_ERROR
+                });
+            }
+
+            const existingUser = await UsersService.getById(uid);
+            logger.debug('UsersService.getById() finished successfully')
+
+            if (!existingUser) {
+                logger.error(`User ${uid} not found`);
+                throw new Error(`Usuario ${uid} no encontrado`);
+            }
+
             const existingCart = await CartsService.getById(cid);
             logger.debug('CartsService.getById() finished successfully')
 
@@ -54,15 +71,25 @@ export default class CartsController {
                 });
             }
 
+            const product = await ProductsService.getById(pid);
+            logger.debug('ProductsService.getById() finished successfully')
+
+            if (existingUser.role === 'premium' && product.owner.toString() === existingUser._id.toString()) {
+                logger.error(`User cannot buy their own product`);
+                throw new Error('El usuario no puede comprar su propio producto')
+            }
+
             if (!existingCart) {
                 const newCartData = { products: [{ product: pid }] };
                 const newCart = await CartsService.create(newCartData);
                 logger.debug('CartsService.create() finished successfully')
                 return newCart
             }
+
             const existingProduct = existingCart.products.find(
                 (item) => item.product._id.toString() === pid.toString()
             );
+
             if (existingProduct) {
                 existingProduct.quantity = (existingProduct.quantity || 1) + 1;
             } else {

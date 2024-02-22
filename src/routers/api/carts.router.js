@@ -27,7 +27,8 @@ router.post('/carts/current/:pid', passport.authenticate('jwt', { session: false
     try {
         const { pid } = req.params;
         const cid = req.user.cart._id;
-        const updatedCart = await CartsController.addProductToCart(cid, pid)
+        const uid = req.user._id;
+        const updatedCart = await CartsController.addProductToCart(uid, cid, pid)
         logger.debug('CartsController.addProductToCart() finished successfully')
         logger.info(`Product added to cart successfully: ${pid}`)
         res.status(200).json(updatedCart)

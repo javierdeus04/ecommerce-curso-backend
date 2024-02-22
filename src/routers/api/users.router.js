@@ -104,7 +104,7 @@ router.post('/users/recovery-password', async (req, res) => {
         const tokenExpirationDate = new Date(verifiedToken.exp * 1000); 
         if (new Date() > tokenExpirationDate) {
             logger.warn('El token ha expirado');
-            return res.status(401).json({ message: 'El token ha expirado' });
+            return res.status(401).redirect('/recovery-password');
         }
 
         if (verifiedToken.type !== 'password-recovery') {
@@ -165,5 +165,22 @@ router.get('/users/:uid', isAdmin, async (req, res) => {
         res.status(404).json({ message: 'Pagina no encontrada' })
     }
 });
+
+router.put('/users/premium/:uid', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const uid = req.user._id;
+        const user = await UserController.getById(uid);
+        logger.debug('UserController.getById() finished successfully');
+        await UserController.updateRole(uid);
+        logger.debug('UserController.updateRole() finished successfully');
+        const userDTO = createUserDTO(user);
+        logger.info('Role updated to ' + userDTO.role)
+        res.status(200).json(userDTO);
+    } catch (error) {
+        logger.error(error.message);
+        logger.error('Router Error. Method: GET. Path: /users/premium/:uid')
+        res.status(404).json({ message: 'Pagina no encontrada' })
+    }
+})
 
 export default router;

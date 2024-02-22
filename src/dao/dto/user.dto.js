@@ -14,7 +14,8 @@ export const createUserDTO = (users) => {
                 last_name: user.last_name,
                 email: user.email,
                 age: user.age,
-                orders: user.orders
+                orders: user.orders,
+                role: user.role
             };
         });
     } else {
@@ -24,7 +25,8 @@ export const createUserDTO = (users) => {
             email: users.email,
             age: users.age,
             cart: users.cart,
-            orders: users.orders
+            orders: users.orders,
+            role: users.role
         };
     }
 };

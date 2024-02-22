@@ -118,4 +118,29 @@ export default class UserController {
         }
         return UsersService.deleteById(id);
     }
+
+    static async updateRole(id) {
+        if (!Types.ObjectId.isValid(id)) {
+            CustomError.create({
+                name: 'Invalid user id format',
+                cause: generatorUserIdError(id),
+                message: 'Error al intentar obtener el usuario por su id',
+                code: EnumsError.INVALID_PARAMS_ERROR
+            });
+        }
+
+        const existingUser = await UsersService.getById(id);
+        if (!existingUser) {
+            logger.error('User not found')
+            throw new Error('Usuario no encontrado');
+        }
+
+        console.log(id);
+
+        if (existingUser.role === 'user') {
+            return UsersService.updateById(id, { $set: { role: 'premium' }})
+        } else {
+            return UsersService.updateById(id, { $set: { role: 'user' }})
+        }
+    }
 }

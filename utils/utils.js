@@ -111,6 +111,50 @@ export const isAdmin = (req, res, next) => {passport.authenticate('jwt', { sessi
     })(req, res, next);
 };
 
+export const isPremium = (req, res, next) => {passport.authenticate('jwt', { session: false }, (error, user) => {
+    if (error) {
+        logger.error('Error at isPremium middleware')
+        return next(error);
+    }
+
+    if (!user) {
+        logger.error('Forbidenn access. Unauthorized user')
+        return res.status(401).json({ message: 'No autorizado' });
+    }
+
+    if (user.role === 'premium') {
+        logger.info('Access granted. Authorized premium user')
+        return next();
+    } else {
+        logger.error('Forbidenn access. Unauthorized user')
+        return res.status(403).json({ message: 'Acceso prohibido. Usuario no autorizado.' });
+    }
+})(req, res, next);
+};
+
+export const isAdminOrPremium = (req, res, next) => {passport.authenticate('jwt', { session: false }, (error, user) => {
+    if (error) {
+        logger.error('Error at isPremium middleware')
+        return next(error);
+    }
+
+    if (!user) {
+        logger.error('Forbidenn access. Unauthorized user')
+        return res.status(401).json({ message: 'No autorizado' });
+    }
+
+    if (user.role === 'premium' || user.role === 'admin') {
+        logger.info('Access granted. Authorized premium user')
+        return next();
+    } else {
+        logger.error('Forbidenn access. Unauthorized user')
+        return res.status(403).json({ message: 'Acceso prohibido. Usuario no autorizado.' });
+    }
+})(req, res, next);
+};
+
+
+
 export const generateProduct = () => {
     return {
         id: faker.database.mongodbObjectId(),
