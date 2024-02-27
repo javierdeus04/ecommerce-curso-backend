@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import cors from 'cors';
 import session from 'express-session';
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 import { __dirname } from '../utils/utils.js'
 import { URI } from './db/mongodb.js';
@@ -36,6 +38,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser(COOKIE_SECRET));
+
+
+const swaggerOpts = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: "MoviEcommerce API",
+            description: "Documentacion de la API de MoviEcommerce. Una aplicacion para la compra y venta de peliculas en formato fisico.",
+        },
+    },
+    apis: [path.join(__dirname, '..', 'docs', '**', '*.yaml')],
+}
+const specs = swaggerJsDoc(swaggerOpts);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.use('/api/auth/github', session({
     secret: '0pyPA(*g3AdF\g$028gfqibSFv-y0L',
     resave: false,

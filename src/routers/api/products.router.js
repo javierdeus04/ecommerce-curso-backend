@@ -3,7 +3,6 @@ import passport from 'passport';
 
 import ProductsController from '../../controllers/products.controller.js';
 import { isAdmin, isAdminOrPremium, isPremium } from '../../../utils/utils.js';
-import { errorHandlerMiddleware } from '../../middlewares/error-handler-middleware.js';
 import { logger } from '../../config/logger.js';
 
 const router = Router();
