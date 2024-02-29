@@ -57,10 +57,10 @@ router.delete('/carts/current/:pid', passport.authenticate('jwt', { session: fal
 router.delete('/carts/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         const cid = req.user.cart._id.toString();
-        const emptyCart = await CartsController.deleteAllProductsFromCart(cid)
+        await CartsController.deleteAllProductsFromCart(cid)
         logger.debug('CartsController.deleteAllProductsFromCart() finished successfully')
         logger.info(`All products removed from cart successfully`)
-        res.status(200).json(emptyCart);
+        res.status(200).end();
     } catch (error) {
         logger.error(error.message);
         logger.error('API Router Error. Method: DELETE. Path: /carts/current')

@@ -1,12 +1,306 @@
 paths:
   /api/products:
+    
     get:
-      summary: Lista todos los productos
+      summary: Lista todos los productos de la base de datos.
       tags:
         - Products
       responses:
-        "200":
+        200:
           description: Los productos fueron obtenidos con exito desde la base de datos.
-        "500":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Product'
+        500:
           description: Error interno del servidor.
+    
+    post:
+      summary: Crea un producto y lo agrega a la base de datos si el usuario es premium o admin.
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/createProduct'
+      responses:
+        201:
+          description: Producto agregado con exito a la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: Error interno del servidor.
+
+  /api/products/{uid}:
+
+    get:
+      summary: Obtiene un producto por el id de la base de datos.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          description: Identificador del producto a busacr.
+          schema:
+            type: string
+      responses:
+        200:
+          description: El producto fue obtenido con exito desde la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+
+    put:
+      summary: Actualiza un producto por el id de la base de datos si el usuario es admin.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          description: Identificador del producto a actualizar.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/updateProduct'
+      responses:
+        204:
+          description: El producto fue actualizado con exito en la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/requestBodies/updateProduct'
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+
+    delete:
+      summary: Elimina un producto por el id de la base de datos si el usuario es admin.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          description: Identificador del producto a eliminar.
+          schema:
+            type: string
+      responses:
+        204:
+          description: El producto fue eliminado con exito de la base de datos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Estado de la respuesta
+                    example: success
+                  message:
+                    type: string
+                    descrption: Mensaje de respuesta.
+                    example: Product deleted
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+
+  /api/premium/products/{uid}:
+
+    put:
+      summary: Actualiza un producto por el id de la base de datos si el usuario es premium y dicho producto le pertenece.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          description: Identificador del producto a actualizar.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/updateProduct'
+      responses:
+        204:
+          description: El producto fue actualizado con exito en la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/requestBodies/updateProduct'
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+
+    delete:
+      summary: Elimina un producto por el id de la base de datos si el usuario es premium y dicho producto le pertenece.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          description: Identificador del producto a eliminar.
+          schema:
+            type: string
+      responses:
+        204:
+          description: El producto fue eliminado con exito de la base de datos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Estado de la respuesta
+                    example: success
+                  message:
+                    type: string
+                    descrption: Mensaje de respuesta.
+                    example: Product deleted
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          descrption: Id del producto generado por la base de datos.
+        title:
+          type: string
+          descrption: Nombre del producto.
+        category:
+          type: string
+          descrption: Categoria a la cual pertenece el producto.
+        description:
+          type: string
+          descrption: Descripcion del producto.
+        price:
+          type: number
+          descrption: Precio del producto.
+        thumbnail:
+          type: string
+          descrption: URL de la imagen del producto.
+        code:
+          type: string
+          descrption: Codigo generado automaticamente durantre el proceso de creacion del producto.
+        stock:
+          type: number
+          descrption: Cantidad del producto disponible para la venta.
+        status:
+          type: boolean
+          descrption: Estado del producto como objeto de la base de datos, puede ser True o False, por defecto en True al crear un producto.
+        owner:
+          type: string
+          descrption: Usuario propietario del producto en caso de que lo haya creado un usuario premium, en caso contrario este campo sera admin por defecto a la hora de crear el producto.
+      example: 
+        _id: "65625fa7f57897d1ad1350de"
+        title: "Playing by Heart"
+        category: "Drama"
+        description: "Phasellus in felis. Donec semper sapien a libero. Nam dui."
+        price: 77
+        thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAKTSURBVDjLjZNLSJRRFMd/95uHOmrjo0zM0RTR7EFvg4oeEtQiKoRcRBRFaKs2QatW0cIeFCRUWERBgYsWFYQUUfawh20GW+SDHIcSdaRSq5n5vu/e77aYnD6JosO9nHvh3t85/3vuEVpr+vr6tOM4OI6DUgqlFFLKtHdP27bTvrGxUXgBlFKUlJQyMTUFWkNqgNZoQGudXqM1+fl5dHTcByANmJic5MiFLv7HzjSvxrKs3wAp5a+QUBoqIyfgJzQnm8wML0lbY0sHW4HS8Lo7jHY0pmkCYADYtp1KExBCEE9KRieSxE2F1iCVxpIOpkyd0ZqZGdi2jTOdnxAIIfgWlzjaJC/bh9frwXA05XSzZ2UHnoFBNuU+pefilX1pgHZSCOGCJCyFZTtkB/xUZz1jS2GUrNl7CVYsZyJSQ+/Dq6fTAFwShBApCKCFYJ7xnG21MWYF1/Hlw3v8wiJ3VjE5hWVBL6T0GB4DgOhQZMaLLyocYPdai7zKbZgj7fgDgmi4l+8/JNqaWpoG+H1eWg4tQymNz+cjNjZGnmeAUDBBsGoHyeHLGH6JL6ecDBnldmQex1uu908DznV2Ptno+mUFufEXkepNZfXBql0khy9h+CTWVAUjnW/UvU/l/bG49xaAmC6f226eari2Ymnl/gUbdxrW2A2ExyI5Wcr4s+6ESvxYWHP01VC6aG5Aa2vrHPE5HKtfU4wURRQWdJFf5Cc5GWK0q4f2wVD8xNnL2e5ghntjmuaquYEoC9c3kfHxBf13uwg/+EL/4zDlDecpmr840NzcvNV95w8JJ5uWOMcOHhYYivCjOwwORXiXtZmvdiZSyrdtbW11/wQ0bihIrKic662rrUD7zJeJ2PiB7S09g39rrJ+Ib2CJHdkBMQAAAABJRU5ErkJggg=="
+        code: "50382-051"
+        stock: 3
+        status: true
+        owner: "65a400a860196a73f3acab83"
+  requestBodies:
+    updateProduct:
+      type: object
+      properties:
+        title:
+          type: string
+          descrption: Nombre del producto.
+        category:
+          type: string
+          descrption: Categoria a la cual pertenece el producto.
+        description:
+          type: string
+          descrption: Descripcion del producto.
+        price:
+          type: number
+          descrption: Precio del producto.
+        thumbnail:
+          type: string
+          descrption: URL de la imagen del producto.
+        code:
+          type: string
+          descrption: Codigo generado automaticamente durantre el proceso de creacion del producto.
+        stock:
+          type: number
+          descrption: Cantidad del producto disponible para la venta.
+        status:
+          type: boolean
+          descrption: Estado del producto como objeto de la base de datos, puede ser True o False, por defecto en True al crear un producto.
+      example:
+        title: "Playing by Heart"
+        category: "Drama"
+        description: "Phasellus in felis. Donec semper sapien a libero. Nam dui."
+        price: 77
+        thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAKTSURBVDjLjZNLSJRRFMd/95uHOmrjo0zM0RTR7EFvg4oeEtQiKoRcRBRFaKs2QatW0cIeFCRUWERBgYsWFYQUUfawh20GW+SDHIcSdaRSq5n5vu/e77aYnD6JosO9nHvh3t85/3vuEVpr+vr6tOM4OI6DUgqlFFLKtHdP27bTvrGxUXgBlFKUlJQyMTUFWkNqgNZoQGudXqM1+fl5dHTcByANmJic5MiFLv7HzjSvxrKs3wAp5a+QUBoqIyfgJzQnm8wML0lbY0sHW4HS8Lo7jHY0pmkCYADYtp1KExBCEE9KRieSxE2F1iCVxpIOpkyd0ZqZGdi2jTOdnxAIIfgWlzjaJC/bh9frwXA05XSzZ2UHnoFBNuU+pefilX1pgHZSCOGCJCyFZTtkB/xUZz1jS2GUrNl7CVYsZyJSQ+/Dq6fTAFwShBApCKCFYJ7xnG21MWYF1/Hlw3v8wiJ3VjE5hWVBL6T0GB4DgOhQZMaLLyocYPdai7zKbZgj7fgDgmi4l+8/JNqaWpoG+H1eWg4tQymNz+cjNjZGnmeAUDBBsGoHyeHLGH6JL6ecDBnldmQex1uu908DznV2Ptno+mUFufEXkepNZfXBql0khy9h+CTWVAUjnW/UvU/l/bG49xaAmC6f226eari2Ymnl/gUbdxrW2A2ExyI5Wcr4s+6ESvxYWHP01VC6aG5Aa2vrHPE5HKtfU4wURRQWdJFf5Cc5GWK0q4f2wVD8xNnL2e5ghntjmuaquYEoC9c3kfHxBf13uwg/+EL/4zDlDecpmr840NzcvNV95w8JJ5uWOMcOHhYYivCjOwwORXiXtZmvdiZSyrdtbW11/wQ0bihIrKic662rrUD7zJeJ2PiB7S09g39rrJ+Ib2CJHdkBMQAAAABJRU5ErkJggg=="
+        code: "50382-051"
+        stock: 3
+        status: true
+    createProduct:
+      type: object
+      properties:
+        title:
+          type: string
+          descrption: Nombre del producto.
+        category:
+          type: string
+          descrption: Categoria a la cual pertenece el producto.
+        description:
+          type: string
+          descrption: Descripcion del producto.
+        price:
+          type: number
+          descrption: Precio del producto.
+        thumbnail:
+          type: string
+          descrption: URL de la imagen del producto.
+        code:
+          type: string
+          descrption: Codigo generado automaticamente durantre el proceso de creacion del producto.
+        stock:
+          type: number
+          descrption: Cantidad del producto disponible para la venta.
+      example:
+        title: "Playing by Heart"
+        category: "Drama"
+        description: "Phasellus in felis. Donec semper sapien a libero. Nam dui."
+        price: 77
+        thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAKTSURBVDjLjZNLSJRRFMd/95uHOmrjo0zM0RTR7EFvg4oeEtQiKoRcRBRFaKs2QatW0cIeFCRUWERBgYsWFYQUUfawh20GW+SDHIcSdaRSq5n5vu/e77aYnD6JosO9nHvh3t85/3vuEVpr+vr6tOM4OI6DUgqlFFLKtHdP27bTvrGxUXgBlFKUlJQyMTUFWkNqgNZoQGudXqM1+fl5dHTcByANmJic5MiFLv7HzjSvxrKs3wAp5a+QUBoqIyfgJzQnm8wML0lbY0sHW4HS8Lo7jHY0pmkCYADYtp1KExBCEE9KRieSxE2F1iCVxpIOpkyd0ZqZGdi2jTOdnxAIIfgWlzjaJC/bh9frwXA05XSzZ2UHnoFBNuU+pefilX1pgHZSCOGCJCyFZTtkB/xUZz1jS2GUrNl7CVYsZyJSQ+/Dq6fTAFwShBApCKCFYJ7xnG21MWYF1/Hlw3v8wiJ3VjE5hWVBL6T0GB4DgOhQZMaLLyocYPdai7zKbZgj7fgDgmi4l+8/JNqaWpoG+H1eWg4tQymNz+cjNjZGnmeAUDBBsGoHyeHLGH6JL6ecDBnldmQex1uu908DznV2Ptno+mUFufEXkepNZfXBql0khy9h+CTWVAUjnW/UvU/l/bG49xaAmC6f226eari2Ymnl/gUbdxrW2A2ExyI5Wcr4s+6ESvxYWHP01VC6aG5Aa2vrHPE5HKtfU4wURRQWdJFf5Cc5GWK0q4f2wVD8xNnL2e5ghntjmuaquYEoC9c3kfHxBf13uwg/+EL/4zDlDecpmr840NzcvNV95w8JJ5uWOMcOHhYYivCjOwwORXiXtZmvdiZSyrdtbW11/wQ0bihIrKic662rrUD7zJeJ2PiB7S09g39rrJ+Ib2CJHdkBMQAAAABJRU5ErkJggg=="
+        code: "50382-051"
+        stock: 3
+
+
 

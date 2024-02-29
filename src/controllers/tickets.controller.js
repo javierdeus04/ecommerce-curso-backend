@@ -30,9 +30,11 @@ export default class TicketsController {
             logger.error('There are no pending orders')
             throw new Error('No existen ordenes pendientes');
         }
-
+        
         const lastPendingOrder = pendingOrders[pendingOrders.length - 1]
+
         const pendingOrderId = lastPendingOrder._id;
+
         const currentProducts = lastPendingOrder.products;
 
         if (!currentProducts || currentProducts.length === 0) {

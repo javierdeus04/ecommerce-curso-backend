@@ -74,7 +74,7 @@ export default class CartsController {
             const product = await ProductsService.getById(pid);
             logger.debug('ProductsService.getById() finished successfully')
 
-            if (existingUser.role === 'premium' && product.owner.toString() === existingUser._id.toString()) {
+            if (existingUser.role === 'premium' && product.owner === existingUser._id) {
                 logger.error(`User cannot buy their own product`);
                 throw new Error('El usuario no puede comprar su propio producto')
             }
@@ -87,7 +87,7 @@ export default class CartsController {
             }
 
             const existingProduct = existingCart.products.find(
-                (item) => item.product._id.toString() === pid.toString()
+                (item) => item.product._id === pid
             );
 
             if (existingProduct) {

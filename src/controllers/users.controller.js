@@ -80,20 +80,7 @@ export default class UserController {
                 code: EnumsError.INVALID_PARAMS_ERROR
             });
         }
-         if (!data.first_name &&
-            !data.last_name &&
-            !data.age) {
-            CustomError.create({
-                name: 'Invalid data user',
-                cause: generatorUserError({
-                    first_name,
-                    last_name,
-                    age
-                }),
-                message: `Error al actualizar el usuario ${id}`,
-                code: EnumsError.BAD_REQUEST_ERROR,
-            })
-        }
+        
         const existingUser = await UsersService.getById(id);
         if (!existingUser) {
             logger.error('User not found')

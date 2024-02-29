@@ -1,0 +1,230 @@
+paths:
+  /api/carts/current:
+    
+    get:
+      summary: Devuelve el carrito del usuario logueado.
+      tags:
+        - Carts
+      responses:
+        200:
+          description: El carrito fue obtenido con exito desde la base de datos.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Cart'
+        500:
+          description: Error interno del servidor.
+
+    delete:
+      summary: Elimina todos los elementos del carrito del usuario logueado.
+      tags:
+        - Carts
+      responses:
+        200:
+          description: Todos los productos fueron correctamente eliminados del carrito.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Estado de la respuesta
+                    example: success
+                  message:
+                    type: string
+                    descrption: Mensaje de respuesta.
+                    example: All products deleted from cart
+        500:
+          description: Error interno del servidor.
+
+  /api/carts/current/{pid}:
+
+    post:
+      summary: Agrega un producto al carrito del usuario logueado.
+      tags:
+        - Carts
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Identificador del producto a agreagr al carrito.
+          schema:
+            type: string
+      responses:
+        200:
+          description: Producto agregado al carrito con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        500:
+          description: Error interno del servidor.
+
+    delete:
+      summary: Elimina un producto por su id del carrito del usuario logueado.
+      tags:
+        - Carts
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Identificador del producto a eliminar del carrito del usuario logueado.
+          schema:
+            type: string
+      responses:
+        200:
+          description: El producto fue eliminado con exito del carrito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        404: 
+          description: Producto no encontrado.
+        500:
+          description: Error interno del servidor.
+  
+  #/api/carts/current/product/{pid}:
+    #put:
+
+  /api/carts/current/purchase:
+    get:
+      summary: Finaliza el proceso de compra, actualizando los elementos del carrito y el estado de la orden, y creando el ticket correspondiente a la compra. Ademas envia un email con la informacion de la compra al usuario.
+      tags:
+        - Carts
+      responses:
+        200:
+          description: Compra realizada con éxito.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productsRejected:
+                    $ref: '#/components/schemas/ProductsRejected'
+                  finalizedPurchase:
+                    $ref: '#/components/schemas/FinalizedPurchase'
+        401:
+          description: No autorizado.
+        404:
+          description: Página no encontrada.
+      
+      
+
+
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: El id del carrito generado por la base de datos.
+        products:
+          type: array
+          description: Los productos presentes en el carrito del usuario logueado.
+          items:
+            type: object
+            properties:
+              product:
+                type: string
+                description: El id del producto en la base de datos.
+              quantity:
+                type: number
+      example: 
+        _id: "658b40a4ee993d5bf647d970"
+        products: 
+          - product: "65625fa7f57897d1ad1350d6"
+            quantity: 1
+            _id: "658b5431995a9975ae4b3e3c"
+    ProductsRejected:
+      type: array
+      items:
+        type: object
+        properties:
+          product:
+            type: string
+            description: El producto rechazado
+          quantity:
+            type: integer
+            description: La cantidad del producto rechazado
+      example:
+        - product: "65625fa7f57897d1ad1350d6"
+          quantity: 1
+        - product: "85625fa7f57897d1ad1350d7"
+          quantity: 2
+    FinalizedPurchase:
+      type: object
+      properties:
+        updatedOrder:
+          $ref: '#/components/schemas/Order'
+        ticketCreated:
+          $ref: '#/components/schemas/Ticket'
+      example:
+        updatedOrder:
+          _id: "65dfd867659d880eff93e640"
+          code: "7f978f74-3271-43f4-945e-951e174451af"
+          user: "65a400a860196a73f3acab83"
+          products:
+            - product: "65625fa7f57897d1ad1350d6"
+              quantity: 1
+              _id: "65dfd867659d880eff93e641"
+          total: 112
+          status: completed
+        ticketCreated:
+          code: "a5d94f39-cba1-4dff-90f4-b2061f113a9d"
+          amount: 112
+          purchaser: "jacintodecaurnex@gmail.com"
+          _id: "65dfd870659d880eff93e65d"
+    Order:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID de la orden.
+        code:
+          type: string
+          description: Código de la orden.
+        user:
+          type: string
+          description: Id del usuario.
+        products:
+          type: array
+          description: Los productos en la orden.
+          items:
+            $ref: '#/components/schemas/ProductInOrder'
+        total:
+          type: number
+          description: Precio total de la orden.
+        status:
+          type: string
+          description: Estado de la orden.
+    ProductInOrder:
+      type: object
+      properties:
+        product:
+          type: string
+          description: Id del producto.
+        quantity:
+          type: integer
+          description: Cantidad del producto.
+        _id:
+          type: string
+          description: Id del producto.
+    Ticket:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Código del ticket.
+        amount:
+          type: number
+          description: Monto del ticket.
+        purchaser:
+          type: string
+          description: Correo electrónico del comprador.
+        _id:
+          type: string
+          description: ID del ticket.

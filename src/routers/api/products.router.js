@@ -54,7 +54,9 @@ router.put('/products/:pid', isAdmin, async (req, res) => {
     try {
         await ProductsController.updateById(pid, body);
         logger.info(`Product successfully updated: ${pid}`)
-        res.status(204).end();
+        const productUpdated = await ProductsController.getById(pid)
+        logger.debug('ProductsController.getById() finished successfully')
+        res.status(204).json(productUpdated);
     } catch (error) {
         logger.error(error.message);
         logger.error('API Router Error. Method: PUT. Path: /products')
@@ -70,7 +72,9 @@ router.put('/premium/products/:pid', passport.authenticate('jwt', { session: fal
         await ProductsController.updateOwnProductById(uid, pid, body);
         logger.debug('ProductsController.updateOwnProductById() finished successfully')
         logger.info(`Product successfully updated: ${pid}`)
-        res.status(204).end();
+        const productUpdated = await ProductsController.getById(pid)
+        logger.debug('ProductsController.getById() finished successfully')
+        res.status(204).json(productUpdated);
     } catch (error) {
         logger.error(error.message);
         logger.error('API Router Error. Method: PUT. Path: premium/products/:pid')
@@ -84,7 +88,7 @@ router.delete('/products/:pid', isAdmin, async (req, res) => {
         await ProductsController.deleteById(pid);
         logger.debug('ProductsController.deleteById() finished successfully')
         logger.info(`Product successfully removed: ${pid}`)
-        res.status(204).end();
+        res.status(204).json({ message: 'Product deleted' });
     } catch (error) {
         logger.error(error.message);
         logger.error('API Router Error. Method: DELETE. Path: /products/:pid')
@@ -99,7 +103,7 @@ router.delete('/premium/products/:pid', passport.authenticate('jwt', { session: 
         await ProductsController.deleteOwnProductById(uid, pid);
         logger.debug('ProductsController.deleteOwnProductById() finished successfully')
         logger.info(`Product successfully removed: ${pid}`)
-        res.status(204).end();
+        res.status(204).json({ message: 'Product deleted' });
     } catch (error) {
         logger.error(error.message);
         logger.error('API Router Error. Method: DELETE. Path: premium/products/:pid')
