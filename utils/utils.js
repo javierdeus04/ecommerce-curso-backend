@@ -169,4 +169,11 @@ export const generateProduct = () => {
     }
 }
 
+export async function authenticateUser(requester, email, password) {
+    const { headers } = await requester.post('/auth/login').send({ email, password });
+    const [key, value] = headers['set-cookie'][0].split('=');
+    const cookie = { key, value };
+    return cookie;
+}
+
 

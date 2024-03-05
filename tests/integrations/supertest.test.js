@@ -1,16 +1,9 @@
 import { expect } from "chai";
 import supertest from "supertest";
 
-import { URL_BASE, JWT_SECRET, admin, generateToken } from '../../utils/utils.js'
+import { URL_BASE, authenticateUser } from '../../utils/utils.js'
 
 const requester = supertest(URL_BASE);
-
-async function authenticateUser(requester, email, password) {
-    const { headers } = await requester.post('/auth/login').send({ email, password });
-    const [key, value] = headers['set-cookie'][0].split('=');
-    const cookie = { key, value };
-    return cookie;
-}
 
 describe('Ecommerce testing', function () {
 

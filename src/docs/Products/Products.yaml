@@ -37,7 +37,7 @@ paths:
         500:
           description: Error interno del servidor.
 
-  /api/products/{uid}:
+  /api/products/{pid}:
 
     get:
       summary: Obtiene un producto por el id de la base de datos.
@@ -45,7 +45,7 @@ paths:
         - Products
       parameters:
         - in: path
-          name: uid
+          name: pid
           required: true
           description: Identificador del producto a busacr.
           schema:
@@ -68,7 +68,7 @@ paths:
         - Products
       parameters:
         - in: path
-          name: uid
+          name: pid
           required: true
           description: Identificador del producto a actualizar.
           schema:
@@ -97,7 +97,7 @@ paths:
         - Products
       parameters:
         - in: path
-          name: uid
+          name: pid
           required: true
           description: Identificador del producto a eliminar.
           schema:
@@ -123,7 +123,7 @@ paths:
         500:
           description: Error interno del servidor.
 
-  /api/premium/products/{uid}:
+  /api/premium/products/{pid}:
 
     put:
       summary: Actualiza un producto por el id de la base de datos si el usuario es premium y dicho producto le pertenece.
@@ -131,7 +131,7 @@ paths:
         - Products
       parameters:
         - in: path
-          name: uid
+          name: pid
           required: true
           description: Identificador del producto a actualizar.
           schema:
@@ -160,7 +160,7 @@ paths:
         - Products
       parameters:
         - in: path
-          name: uid
+          name: pid
           required: true
           description: Identificador del producto a eliminar.
           schema:
