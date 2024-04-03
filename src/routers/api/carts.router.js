@@ -6,6 +6,7 @@ import passport from 'passport';
 import EmailService from '../../services/email.service.js';
 import TicketsController from '../../controllers/tickets.controller.js';
 import { logger } from '../../config/logger.js';
+import ProductsController from '../../controllers/products.controller.js';
 
 const router = Router();
 
@@ -28,6 +29,11 @@ router.post('/carts/current/:pid', passport.authenticate('jwt', { session: false
         const { pid } = req.params;
         const cid = req.user.cart._id;
         const uid = req.user._id;
+        const product = await ProductsController.getById(pid);
+        const productOwner = product.owner;
+        if (productOwner === uid.toString()) {
+            return res.status(400).json({ message: "Error al agregar el producto al carrito"})
+        }
         const updatedCart = await CartsController.addProductToCart(uid, cid, pid)
         logger.debug('CartsController.addProductToCart() finished successfully')
         logger.info(`Product added to cart successfully: ${pid}`)
@@ -117,7 +123,7 @@ router.get('/carts/current/purchase', passport.authenticate('jwt', { session: fa
    
         const emailService = EmailService.getInstance();
         await emailService.sendEmail(
-            'javidiuf@hotmail.com',
+            userEmail,
             'Informacion de su compra',
             `<div>
             <ul>

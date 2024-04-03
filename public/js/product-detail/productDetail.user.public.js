@@ -34,6 +34,13 @@ addToCartButton.addEventListener('click', async () => {
         });
 
         if (!response.ok) {
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "No puede agregar un producto propio al carrito",
+            showConfirmButton: false,
+            timer: 2500
+          });
             throw new Error('Error al agregar el producto al carrito: ' + response.statusText);
         }
         const data = await response.json();

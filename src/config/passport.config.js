@@ -9,7 +9,7 @@ import { generatorUserError } from "../../utils/CauseMessageError.js";
 import EnumsError from "../../utils/EnumsError.js";
 import { logger } from "./logger.js";
 import CartsController from "../controllers/carts.controller.js";
- 
+
 const cookieExtractor = (req) => {
     let token = null;
     if (req && req.signedCookies) {
@@ -28,7 +28,7 @@ export const init = () => {
     passport.use('jwt', new JWTStrategy(jwtOptions, async (payload, done) => {
         try {
             let user;
-    
+
             if (payload.id) {
                 user = await UserController.getById(payload.id);
                 logger.debug('UserController.getById() finished successfully')
@@ -37,12 +37,12 @@ export const init = () => {
             } else {
                 user = { role: 'anonymous' };
             }
-    
+
             if (!user) {
                 logger.error("User not found")
                 return done(null, false, { message: 'Usuario no encontrado' });
             }
-    
+
             if (user._id && !user.cart) {
                 const newCart = await CartsController.create({ products: [] });
                 logger.debug('CartsController.create() finished successfully')
@@ -50,7 +50,7 @@ export const init = () => {
                 await user.save();
             }
 
-            logger.info('User successfully authenticated');    
+            logger.info('User successfully authenticated');
             return done(null, user);
         } catch (error) {
             logger.error(error.message)
@@ -65,11 +65,10 @@ export const init = () => {
 
     passport.use('register', new LocalStrategy(registerOptions, async (req, email, password, done) => {
         const {
-            body: {
-                first_name,
-                last_name,
-                age
-            } } = req;
+            first_name,
+            last_name,
+            age,
+        } = req.body;
 
         if (!first_name ||
             !last_name ||
@@ -91,8 +90,10 @@ export const init = () => {
             })
             logger.warn("All fields are required")
         }
+
         const result = await UserController.getAll({ email })
         logger.debug('UserController.getAll() finished successfully')
+        
         let user = result[0]
         if (user) {
             logger.error(`User already exists: ${user._id}`)
@@ -103,8 +104,9 @@ export const init = () => {
             last_name,
             email,
             password: createHash(password),
-            age,
+            age
         });
+        
         logger.debug('UserController.create() finished successfully')
         done(null, user);
     }));
@@ -121,21 +123,24 @@ export const init = () => {
         const result = await UserController.getAll({ email });
         logger.debug('UserController.getAll() finished successfully')
 
-        if(!result || result.length === 0) {
-            if(email === admin.email && password === admin.password) {
+        if (!result || result.length === 0) {
+            if (email === admin.email && password === admin.password) {
                 user = admin;
             } else {
                 logger.error("Invalid email or password")
                 return done(new Error('Correo o contraseña invalidos'));
             }
         } else {
-            user = result[0]    
+            user = result[0]
             const isNotValidPass = !isValidPassword(password, user);
             if (isNotValidPass) {
                 logger.error("Invalid email or password")
                 return done(new Error('Correo o contraseña invalidos'));
             }
-        } 
+
+            user.last_connection = Date.now();
+            await user.save();
+        }
 
         const token = generateToken(user);
         done(null, { user, token });
@@ -182,7 +187,7 @@ export const init = () => {
     passport.serializeUser((user, done) => {
         done(null, user._id);
     });
-    
+
     passport.deserializeUser(async (id, done) => {
         try {
             const user = await UserController.getById(id);

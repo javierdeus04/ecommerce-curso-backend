@@ -1,14 +1,15 @@
 <article>
     <h1>Registro de nuevo usuario</h1>
-    <form id="register-form" action="/api/auth/register" method="post">
-    <input id="first-name-input" type="text" name="first_name" placeholder="Nombre">
-    <input id="last-name-input" type="text" name="last_name" placeholder="Apellido">
-    <input id="email-input" type="email" name="email" placeholder="Correo">
-    <input id="password-input" type="password" name="password" placeholder="Contraseña">
-    <input id="age-input" type="number" name="age" placeholder="Edad (opcional)">
-    <input id="register-button" type="submit" value="Registrarse">
-    <br>
-    <a href="/login">Ya sos usuario? Inicia sesion!</a>
+    <form id="register-form" action="/api/auth/register" method="post" enctype="multipart/form-data">
+        <input id="first-name-input" type="text" name="first_name" placeholder="Nombre">
+        <input id="last-name-input" type="text" name="last_name" placeholder="Apellido">
+        <input id="email-input" type="email" name="email" placeholder="Correo">
+        <input id="password-input" type="password" name="password" placeholder="Contraseña">
+        <input id="age-input" type="number" name="age" placeholder="Edad (opcional)">
+        <input type="file" name="profile_picture">
+        <input id="register-button" type="submit" value="Registrarse">
+        <br>
+        <a href="/login">Ya sos usuario? Inicia sesion!</a>
     </form>
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>

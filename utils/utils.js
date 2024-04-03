@@ -6,8 +6,8 @@ import JWT from 'jsonwebtoken'
 import { faker } from '@faker-js/faker';
 import passport from 'passport';
 
-import config from '../src/config/config.js';
 import { logger } from '../src/config/logger.js';
+import { createUserDTO } from '../src/dao/dto/user.dto.js';
 
 export const JWT_SECRET = 'u^f.Tl6o78a5bkGXF8~y!KTe2l1:XEcE'
 
@@ -44,18 +44,54 @@ export const isValidPassword = (password, user) => bcrypt.compareSync(password, 
 
 export const URL_BASE = 'http://localhost:8080/api'
 
-const storage = multer.diskStorage({
-    destination: function (req, res, cb) {
-        cb(null, __dirname + '/public/img');
+export const VIEWS_URL_BASE = 'http://localhost:8080'
+
+export const IMAGE_URL_BASE = 'http://localhost:8080/img'
+
+const profileStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, '../public/img/profiles');
+        cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const originalName = file.originalname;
+        const filename = uniqueSuffix + '-' + originalName;
+        cb(null, filename);
     },
 })
 
-export const uploader = multer({ storage });
+const documentStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, '../public/img/documents');
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const originalName = file.originalname;
+        const filename = uniqueSuffix + '-' + originalName;
+        cb(null, filename);
+    },
+})
 
-export const buildResponsePaginated = (data, baseUrl = URL_BASE) => {
+const productStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, '../public/img/products');
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const originalName = file.originalname;
+        const filename = uniqueSuffix + '-' + originalName;
+        cb(null, filename);
+    },
+})
+
+export const uploadProfile = multer({ storage: profileStorage });
+export const uploadProduct = multer({ storage: productStorage });
+export const uploadDocument = multer({ storage: documentStorage });
+
+export const buildProductsResponsePaginated = (data, baseUrl = URL_BASE) => {
     return {
         status: 'success',
         payload: data.docs.map((doc) => doc.toJSON()),
@@ -67,6 +103,21 @@ export const buildResponsePaginated = (data, baseUrl = URL_BASE) => {
         hasNextPage: data.hasNextPage,
         prevLink: data.hasPrevPage ? `${baseUrl}/products?limit=${data.limit}&page=${data.prevPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null,
         nextLink: data.hasNextPage ? `${baseUrl}/products?limit=${data.limit}&page=${data.nextPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null
+    }
+}
+
+export const buildUsersResponsePaginated = (data, baseUrl = URL_BASE) => {
+    return {
+        status: 'success',
+        payload: data.docs.map((doc) => createUserDTO(doc)),
+        totalPages: data.totalPages,
+        prevPage: data.prevPage,
+        nextPage: data.nextPage,
+        page: data.page,
+        hasPrevPage: data.hasPrevPage,
+        hasNextPage: data.hasNextPage,
+        prevLink: data.hasPrevPage ? `${baseUrl}/users?limit=${data.limit}&page=${data.prevPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null,
+        nextLink: data.hasNextPage ? `${baseUrl}/users?limit=${data.limit}&page=${data.nextPage}${data.sort ? `&sort=${data.sort}` : ''}${data.search ? `&search=${data.search}` : ''}` : null
     }
 }
 
@@ -98,7 +149,7 @@ export const isAdmin = (req, res, next) => {passport.authenticate('jwt', { sessi
 
         if (!user) {
             logger.error('Forbidenn access. Unauthorized user')
-            return res.status(401).json({ message: 'No autorizado' });
+            return res.status(401).json({ message: 'Acceso prohibido. Usuario no autorizado.' });
         }
 
         if (user.role === 'admin') {

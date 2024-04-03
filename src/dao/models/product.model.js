@@ -6,11 +6,14 @@ const ProductSchema = new mongoose.Schema({
     category: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    thumbnail: { type: String, required: true },
+    thumbnail: {
+        name: { type: String },
+        reference: { type: String }
+    },
     code: { type: String, required: true },
-    stock: { type: Number , required: true },
+    stock: { type: Number, required: true },
     status: { type: Boolean, default: true },
-    owner: { 
+    owner: {
         type: mongoose.Schema.Types.Mixed,
         ref: 'User',
     },

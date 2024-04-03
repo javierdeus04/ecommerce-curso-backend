@@ -7,8 +7,8 @@ import { Types } from "mongoose";
 
 
 export default class UserController {
-    static getAll(filter = {}) {
-        const result = UsersService.getAll(filter);
+    static async getAll(filter = {}) {
+        const result = await UsersService.getAll(filter);
         if (!result) {
             logger.error('User/s not found');
             throw new Error('Usuario/s no encontrado/s')
@@ -80,7 +80,7 @@ export default class UserController {
                 code: EnumsError.INVALID_PARAMS_ERROR
             });
         }
-        
+
         const existingUser = await UsersService.getById(id);
         if (!existingUser) {
             logger.error('User not found')
@@ -122,12 +122,28 @@ export default class UserController {
             throw new Error('Usuario no encontrado');
         }
 
-        console.log(id);
-
         if (existingUser.role === 'user') {
-            return UsersService.updateById(id, { $set: { role: 'premium' }})
-        } else {
-            return UsersService.updateById(id, { $set: { role: 'user' }})
+            existingUser.role = 'premium'
+            await existingUser.save();
+            return existingUser
+        } else if (existingUser.role === 'premium') {
+            existingUser.role = 'user'
+            await existingUser.save();
+            return existingUser
         }
+    }
+
+    static async approveDocuments(userId) {
+        const existingUser = await UsersService.getById(userId);
+        if (!existingUser) {
+            throw new Error('Usuario no encontrado.');
+        }
+
+        existingUser.documents.forEach(doc => {
+            doc.status = true;
+        });
+
+        await existingUser.save();
+        return existingUser;
     }
 }

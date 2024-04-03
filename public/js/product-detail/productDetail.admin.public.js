@@ -1,5 +1,3 @@
-import { devLogger } from "../../../src/config/logger";
-
 const logoutButton = document.getElementById('logout-button');
 
 logoutButton.addEventListener('click', async () => {
@@ -13,7 +11,6 @@ logoutButton.addEventListener('click', async () => {
         });
 
         if (!response.ok) {
-            devLogger.debug('Error desde devLogger')
             throw new Error('Error al intentar cerrar sesión');
         } else {
             window.location.href = '/login';
@@ -33,7 +30,7 @@ updateButton.addEventListener('click', async (event) => {
     const productTitle = document.getElementById('title').innerText.trim();
     const productCategory = document.getElementById('category').innerText.trim();
     const productDescription = document.getElementById('description').innerText.trim();
-    const productPrice = document.getElementById('price').innerText.split(":")[1].trim();
+    const productPrice = document.getElementById('price').innerText.split(":");
     const productThumbnail = document.getElementById('thumbnail').getAttribute('src');
     const productStock = document.getElementById('stock').innerText.split(":")[1].trim();
     const productCode = document.getElementById('code').innerText.split(":")[1].trim();
@@ -146,12 +143,14 @@ deleteButton.addEventListener('click', (event) => {
                     icon: "success",
                     title: "Producto eliminado correctamente",
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 3000
                   });
 
                 console.log(`El producto ${productId} ha sido eliminado correctamente`);
 
-                window.location.href = '/products';
+                setTimeout(function() {
+                    window.location.href = '/products';
+                }, 2500);
             } catch (error) {
                 console.error('Error:', error.message);
             };

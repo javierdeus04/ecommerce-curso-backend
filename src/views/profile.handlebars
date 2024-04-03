@@ -1,10 +1,12 @@
 <ul>
-    <a href="/products" role="button"><li style="display: inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="36"
-                height="36" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+    <a href="/products" role="button">
+        <li style="display: inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
                 <path
                     d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
-            </svg></li></a>
-            <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
+            </svg></li>
+    </a>
+    <li style="display: inline-block; float: right"><button id="logout-button"><svg xmlns="http://www.w3.org/2000/svg"
                 width="36" height="36" fill="currentColor" class="bi bi-door-open" viewBox="0 0 16 16">
                 <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1" />
                 <path
@@ -18,6 +20,7 @@
                 </svg></button></a>
     </li>
 </ul>
+<h1>MoviEcommerce</h1>
 
 <article>
     <header><b>Perfil de usuario</b></header>
@@ -26,10 +29,71 @@
         <li>Apellido: {{user.last_name}}</li>
         <li>Email: {{user.email}}</li>
         <li>Edad: {{user.age}}</li>
-        <li><a href="/users/current/orders">Mis ordenes</a></li>
+        <li>
+            <details>
+                <summary>Ordenes de compra</summary>
+                {{#each user.orders}}
+                <ul>
+                    <li>{{this}}</li>
+                </ul>
+                {{/each}}
+            </details>
+        </li>
+        <li>
+            <details>
+                <summary>Tickets</summary>
+                {{#each user.tickets}}
+                <ul>
+                    <li>{{this.code}}</li>
+                </ul>
+                {{/each}}
+            </details>
+        </li>
+        {{#if premiumUser}}
+        <li>
+        <details>
+            <summary>Productos publicados</summary>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each premiumUserProducts}}
+                        <tr>
+                            <td>{{this.title}}</td>
+                            <td>{{this.thumbnail}}</td>
+                            <td>
+                                <button onclick="window.location.href = '/products/{{this._id}}'"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                            <path
+                                d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                        </svg></button>
+                                <button class="delete-button" data-product-id="{{this._id}}"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-trash3" viewBox="0 0 16 16">
+                            <path
+                                d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
+                        </svg></button>
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </details>
+    </li>
+        {{/if}}
     </ul>
 </article>
+{{#if premiumUser}}
+<button><a href="/new-product" style="color: whitesmoke;">Crear nuevo producto</a></button>
+{{/if}}
 <button id="update-profile-button">Actualizar datos</button>
 <button id="delete-profile-button">Eliminar usuario</button>
 </article>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script type="module" src="/js/profile.public.js"></script>

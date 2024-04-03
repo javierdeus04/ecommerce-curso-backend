@@ -11,14 +11,13 @@ export default class ProductsController {
         return ProductsService.getAll();
     }
 
-    static create(data, ownerId) {
+    static create(data, ownerId, thumbnail) {
 
         const {
             title,
             category,
             description,
             price,
-            thumbnail,
             code,
             stock,
         } = data;
@@ -27,7 +26,6 @@ export default class ProductsController {
             !category ||
             !description ||
             !price ||
-            !thumbnail ||
             !code ||
             !stock
         ) {
@@ -38,7 +36,6 @@ export default class ProductsController {
                     category,
                     description,
                     price,
-                    thumbnail,
                     code,
                     stock
                 }),
@@ -54,7 +51,7 @@ export default class ProductsController {
         } else {
             owner = ownerId
         }
-
+        
         const newProduct = {
             title,
             category,
