@@ -24,21 +24,20 @@ const purchase = document.getElementById('purchase');
 
 purchase.addEventListener('click', async () => {
 
-    try {
-      const response = await fetch(`/carts/current/purchase`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  try {
+    const response = await fetch(`/carts/current/purchase`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-console.log(response);  
-      if (!response.ok) {
-        throw new Error('Error al intentar procesar compra');
-      } else {
-        window.location.href = '/current/confirmed-purchase';
-      }
-    } catch (error) {
-      console.error(error.message);
+    if (!response.ok) {
+      throw new Error('Error al intentar procesar compra');
+    } else {
+      window.location.href = '/current/confirmed-purchase';
     }
-  })
+  } catch (error) {
+    console.error(error.message);
+  }
+})
