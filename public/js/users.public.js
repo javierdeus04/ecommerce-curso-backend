@@ -128,4 +128,43 @@ deleteButtons.forEach((button) => {
   });
 });
 
+const deleteInactiveUsers = document.getElementById('delete-inactive-users-button');
+
+deleteInactiveUsers.addEventListener('click', async () => {
+
+  Swal.fire({
+    title: `¿Está seguro de que quiere eliminar a los usuarios inactivos?`,
+    showDenyButton: true,
+    confirmButtonText: "Eliminar",
+    denyButtonText: `Cerrar`
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/users`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al eliminar a los usuarios');
+        }
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Usuarios eliminados correctamente",
+          showConfirmButton: false,
+          timer: 3000
+        });
+        setTimeout(function () {
+          window.location.href = '/users';
+        }, 2500);
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  })
+})
+
 

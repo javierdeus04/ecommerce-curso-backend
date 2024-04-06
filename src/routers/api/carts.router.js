@@ -124,8 +124,9 @@ router.get('/carts/current/purchase', passport.authenticate('jwt', { session: fa
         const emailService = EmailService.getInstance();
         await emailService.sendEmail(
             userEmail,
-            'Informacion de su compra',
+            'MoviEcommerce',
             `<div>
+            <h1>Informacion de su compra</h1>
             <ul>
                 <li>Codigo: ${ticket.code}</li>
                 <li>Productos:
@@ -133,7 +134,7 @@ router.get('/carts/current/purchase', passport.authenticate('jwt', { session: fa
                     ${productsListItems.join('')}
                     </ul>
                 </li>
-                <li>Total: $${ticket.amount}</li>
+                <li>Total: $${ticket.amount.toFixed(2)}</li>
             </ul>
             </div>` 
 

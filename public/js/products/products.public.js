@@ -6,3 +6,17 @@ detailButtons.forEach(button => {
     window.location.href = `/products/${pid}`;
   });
 });
+
+const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
+
+addToCartButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    Swal.fire({
+      position: "center",
+      icon: "error",
+      title: "Debe estar logueado",
+      showConfirmButton: false,
+      timer: 1500
+    });
+  });
+});

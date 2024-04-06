@@ -18,6 +18,7 @@ export const createUserDTO = (users) => {
                 profile_picture: user.profile_picture,
                 orders: user.orders,
                 tickets: user.tickets,
+                documents: user.documents,
                 role: user.role,
                 last_connection: user.last_connection,
             };
@@ -33,6 +34,7 @@ export const createUserDTO = (users) => {
             cart: users.cart,
             orders: users.orders,
             tickets: users.tickets,
+            documents: users.documents,
             role: users.role,
             last_connection: users.last_connection,
         };

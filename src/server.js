@@ -7,7 +7,7 @@ import config from './config/config.js';
 import { logger } from './config/logger.js';
 
 const server = http.createServer(app);
-const PORT = config.port;
+const PORT = config.port || 8080;
 
 await initMongodb();
 initSocket(server);

@@ -89,10 +89,16 @@ router.post('/auth/logout', async (req, res) => {
 router.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
 
 router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
-    const { user } = req.user;
-    console.log(user);
-    logger.info(`Session started successfully. User: ${user.email} - Role: ${user.role}`)
-    res.redirect('/products');
+    try {
+        const user = req.user;
+        console.log(user);
+        logger.info(`Session started successfully. User: ${user.email} - Role: ${user.role}`)
+        res.redirect('/products');
+    } catch (error) {
+        logger.error(error.message);
+        logger.error('API Router Error. Method: GET. Path: /auth/github/callback')
+        res.status(404).json({ message: 'Pagina no encontrada' })
+    }
 })
 
 

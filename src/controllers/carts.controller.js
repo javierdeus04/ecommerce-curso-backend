@@ -87,7 +87,7 @@ export default class CartsController {
             }
 
             const existingProduct = existingCart.products.find(
-                (item) => item.product._id === pid
+                (item) => item.product.toString() === pid
             );
 
             if (existingProduct) {

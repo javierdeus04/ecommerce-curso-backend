@@ -95,7 +95,7 @@ export default class OrdersController {
             code,
             user: userId,
             products: productsToPurchase,
-            total: totalPrice,
+            total: totalPrice.toFixed(2),
         };
         const createdOrder = await OrdersService.create(newOrder);
         logger.debug('OrdersService.create() finished successfully')

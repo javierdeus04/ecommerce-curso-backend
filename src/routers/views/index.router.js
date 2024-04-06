@@ -21,7 +21,7 @@ import { log } from 'console';
 const router = Router();
 
 router.get('/loggerTest', (req, res) => {
-    req.logger.fatal('Logger req (fatal');
+    req.logger.fatal('Logger req (fatal)');
     req.logger.error('Logger req (error)');
     req.logger.warn('Logger req (warning)');
     req.logger.info('Logger req (info)');
@@ -46,27 +46,18 @@ router.get('/products', authenticateJWT, async (req, res) => {
 
     try {
         const products = await ProductModel.paginate(criteria, options);
-
+    
         if (page > products.totalPages) {
-            const errorMessage = new Error(`La página solicitada: ${page} no existe.`);
+            const errorMessage = new Error(`La página ${page} no existe.`);
             logger.error('Page not found')
-            res.render('error', { title: 'Error', errorMessage, cid });
+            return res.render('error', { title: 'Error', errorMessage });
         }
-
+    
         const data = buildProductsResponsePaginated({ ...products, sort, search, stock }, VIEWS_URL_BASE);
-        if (req.user) {
-            if (req.user.role === "admin") {
-                const userAdmin = req.user;
-                res.render('products', { title: 'Productos', sort, VIEWS_URL_BASE, ...data, userAdmin });
-            } else {
-                const user = req.user;
-                const userDTO = createUserDTO(user);
-                res.render('products', { title: 'Productos', sort, VIEWS_URL_BASE, ...data, userDTO });
-            }
-        } else {
-            res.render('products', { title: 'Productos', sort, VIEWS_URL_BASE, ...data });
-        }
-
+        const userData = req.user ? (req.user.role === "admin" ? { userAdmin: req.user, user: req.user} : { user: req.user, userDTO: createUserDTO(req.user) }) : {};
+    
+        res.render('products', { title: 'Productos', sort, VIEWS_URL_BASE, ...data, ...userData });
+    
     } catch (error) {
         logger.error('Index Router Error. Method: GET. Path: /products', error.message);
         res.status(400).send({ error: error.message });
@@ -175,8 +166,12 @@ router.get('/carts/current', passport.authenticate('jwt', { session: false }), a
     }
 })
 
-router.get('/login', async (req, res) => {
-    res.render('login', { title: 'Login' });
+router.get('/login', authenticateJWT, async (req, res) => {
+    if (req.user) {
+        res.redirect('products');
+    } else {
+        res.render('login', { title: 'Login' });
+    }
 })
 
 router.get('/users/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -242,7 +237,7 @@ router.get('/carts/current/order', passport.authenticate('jwt', { session: false
         const currentOrder = userOrders[userOrders.length - 1];
         const populatedOrder = (await currentOrder.populate('products.product')).toJSON();
         const productsInOrder = populatedOrder.products;
-        res.render('confirmOrder', { title: 'Confirmacin de orden', populatedOrder, productsInOrder });
+        res.render('confirmOrder', { title: 'Confirmacion de orden', populatedOrder, productsInOrder });
     } catch (error) {
         logger.error('Index Router Error. Method: GET. Path: /carts/current/order', error.message);
         res.status(400).send({ error: error.message });

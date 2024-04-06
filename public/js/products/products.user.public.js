@@ -20,6 +20,14 @@ logoutButton.addEventListener('click', async () => {
   }
 })
 
+const detailButtons = document.querySelectorAll('.detail-button');
+
+detailButtons.forEach(button => {
+  button.addEventListener('click', function () {
+    const pid = this.getAttribute('data-pid');
+    window.location.href = `/products/${pid}`;
+  });
+});
 
 const addToCartButtons = document.querySelectorAll('.add-to-cart-button');
 
@@ -73,6 +81,13 @@ becomePremiumButton.addEventListener('click', async () => {
     });
 
     if (!response.ok) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Error al intentar cambiar el rol de usuario",
+        showConfirmButton: false,
+        timer: 1500
+      });
       throw new Error('Error al intentar cambiar el rol de usuario');
     } else {
       Swal.fire({

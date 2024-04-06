@@ -125,7 +125,7 @@ router.delete('/products/:pid', isAdmin, async (req, res) => {
 
         const emailService = EmailService.getInstance();
         await emailService.sendEmail(
-            'javier.deus04@gmail.com',
+            userEmail,
             'MoviEcommerce',
             `<div>
                 <h1>Producto dado de baja</h1>

@@ -177,7 +177,11 @@ export const init = () => {
             last_name: '',
             email,
             password: '',
-            age: ''
+            age: '',
+            profile_picture: {
+                name: `avatarFromGithub-${profile._json.name}-${Date.now()}`,
+                reference: profile._json.avatar_url
+            }
         };
         const newUser = await UserController.create(user);
         logger.debug('UserController.create() finished successfully')
